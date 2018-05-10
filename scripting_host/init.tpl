@@ -39,7 +39,7 @@ rpm -Uvh http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx
   die "Failed to install nginx. Exit code was $?"
 log "Installed nginx."
 
-# Configure filewall
+## Configure firewalld
 firewall-offline-cmd --zone=public --add-service=http || \
   die "Failed to add http to firewalld. Exit code was $?"
 firewall-offline-cmd --zone=public --add-service=https || \
@@ -48,7 +48,7 @@ systemctl restart firewalld || \
   die "Failed to restart firewalld. Exit code was $?"
 log "firewall configured for nginx"
 
-# Configure nginx server block for terrasnow
+## Configure nginx server block for terrasnow
 cat > /etc/nginx/sites-available/terrasnow << EOF
 server {
     listen 80;
@@ -62,11 +62,11 @@ server {
 EOF
 log "Nginx server block configured."
 
-# Link the file to the sites-enabled directory
+## Link the file to the sites-enabled directory
 ln -s /etc/nginx/sites-available/terrasnow /etc/nginx/sites-enabled || \
   die "Failed to create link to sites-enabled directory. Exit code was $?"
 
-# restart nginx to load the new config
+## restart nginx to load the new config
 systemctl restart nginx || \
   die "Failed to restart nginx. Exit code was $?"
 log "Successfully restarted nginx."
@@ -75,14 +75,6 @@ log "Successfully restarted nginx."
 yum install -y git || \
   die "Failed to install git. Exit code was $?"
 log "Successfully installed git"
-
-# Install python3
-yum install -y https://centos7.iuscommunity.org/ius-release.rpm || \
-  die "Failed to install python-lastest. Exit code was $?"
-log "Successfully installed python"
-# yum update -y || \
-#  die "failed to run yum update. Exit code was $?"
-# log "Sccuessfully ran yum update."
 
 # Configure the flask app
 git clone https://github.com/userhas404d/terrasnow-enterprise.git || \

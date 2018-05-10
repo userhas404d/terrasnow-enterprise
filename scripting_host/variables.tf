@@ -6,7 +6,6 @@ variable "priv_access_vpc_id" {}
 variable "subnet_id" {}
 variable "sg_allow_inbound_from" {}
 
-variable "ami_id" {}
 variable "instance_type" {}
 variable "key_name" {}
 variable "instance_role" {}

@@ -20,8 +20,32 @@ data "template_file" "init" {
   template = "${file("${path.module}/init.tpl")}"
 }
 
+data "aws_ami" "centos7" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["*spel-minimal-centos-7*"]
+  }
+
+  filter {
+    name   = "is-public"
+    values = ["true"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+
+  filter {
+    name   = "owner-id"
+    values = ["701759196663"]
+  }
+}
+
 resource "aws_instance" "tfe_instance" {
-  ami                    = "${var.ami_id}"
+  ami                    = "${data.aws_ami.centos7.image_id}"
   instance_type          = "${var.instance_type}"
   key_name               = "${var.key_name}"
   vpc_security_group_ids = ["${module.sg.private_sg_id}"]
