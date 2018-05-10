@@ -77,9 +77,12 @@ yum install -y git || \
 log "Successfully installed git"
 
 # Configure the flask app
-git clone https://github.com/userhas404d/terrasnow-enterprise.git || \
+git clone https://github.com/userhas404d/terrasnow-enterprise.git /home/maintuser/terrasnow || \
   die "Failed to pull terrasnow. Exit code was $?"
 log "Successfully pulled terrasnow repo"
+cd /home/maintuser/terrasnow || \
+  die "Failed to navigate to the terrasnow directory. Exit code was $?"
+log "Sucessfully navigated to the terrasnow directory."
 python3 -m venv flask || \
   die "Failed to create flask venv. Exit code was $?"
 log "Started flask app."
