@@ -1,29 +1,40 @@
 """TFE and SN broker."""
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 from flask import Flask, request, abort
-import logging as log
-import urllib.parse
-import urllib.request
-import urllib.response
-
-FORMAT = ("[%(asctime)s][%(levelname)s]" +
-          "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
-
-log.basicConfig(filename='terrasnow_enterprise.log', level=log.INFO,
-                format=FORMAT)
 
 application = Flask(__name__)
 
 
-@application.route('/webhook', methods=['POST'])
+def file_write():
+    """Create a file."""
+    f = open("test.txt", "w+")
+    f.write("THIS IS JUST A TEST")
+    f.close()
+
+
+@application.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     """Create webhook."""
-    if request.method == 'POST':
-        log(request.json)
-        return '', 200
+    if request.method == 'GET':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return request.get_data(), 200
+
+    elif request.method == 'POST':
+        # log.info(request.json)
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return data, 200
     else:
         abort(400)
 
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0')
+    handler = RotatingFileHandler('terrasnow_enterprise.log', maxBytes=10000,
+                                  backupCount=1)
+    handler.setLevel(logging.INFO)
+    application.logger.addHandler(handler)
+    application.run(debug=True)
