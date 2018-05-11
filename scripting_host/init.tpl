@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-14-04
+# https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-centos-7
 
 log()
 {
@@ -48,29 +48,6 @@ systemctl restart firewalld || \
   die "Failed to restart firewalld. Exit code was $?"
 log "firewall configured for nginx"
 
-## Configure nginx server block for terrasnow
-cat > /etc/nginx/sites-available/terrasnow << EOF
-server {
-    listen 80;
-    server_name $HOSTNAME;
-
-    location / {
-        include proxy_params;
-        proxy_pass http://unix:/home/user/terrasnow/terrasnow.sock;
-    }
-}
-EOF
-log "Nginx server block configured."
-
-## Link the file to the sites-enabled directory
-ln -s /etc/nginx/sites-available/terrasnow /etc/nginx/sites-enabled || \
-  die "Failed to create link to sites-enabled directory. Exit code was $?"
-
-## restart nginx to load the new config
-systemctl restart nginx || \
-  die "Failed to restart nginx. Exit code was $?"
-log "Successfully restarted nginx."
-
 # Install git
 yum install -y git || \
   die "Failed to install git. Exit code was $?"
@@ -92,3 +69,95 @@ log "Entered python venv."
 pip install gunicorn flask || \
   die "Failed to install gunicorn. Exit code was $?"
 log "Successfully installed gunicorn."
+
+# configure the app to autostart on boot
+
+cat > /etc/systemd/system/terrasnow.service << EOF
+[Unit]
+Description=Gunicorn instance to serve terrasnow
+After=network.target
+
+[Service]
+User=maintuser
+Group=nginx
+WorkingDirectory=/home/maintuser/terrasnow
+Environment="PATH=/home/maintuser/terrasnow/flask/bin"
+ExecStart=/home/maintuser/terrasnow/flask/bin/gunicorn -w 4 -b 127.0.0.1:8000 wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Configure terrasnow service to start automatically
+sudo systemctl start terrasnow || \
+  die "Failed to start terrasnow. Exit code was $?"
+log "Started terrasnow service."
+sudo systemctl enable terrasnow || \
+  die "Failed to set terrasnow to autostart. Exit code was $?"
+log "Set terrasnow service to autostart."
+
+
+# Change owner of application directory to maintuser
+chown maintuser /home/maintuser/terrasnow || \
+  die "Failed allow nginx user execute permissions to applicaiton directory. Exit code was $?"
+log "Added excute permissions for nginx user on application directory."
+
+# Add the nginx user to same group as maintuser
+sudo usermod -a -G maintuser nginx || \
+  die "Failed add nginx user to maintuser group. Exit code was $?"
+log "Added nginx to maintuser group."
+
+# Create reverse proxy main config
+cat > /etc/nginx/conf.d/default.conf << EOF
+server {
+    listen       80;
+    server_name  localhost;
+
+    location / {
+    proxy_pass http://127.0.0.1:8000/webhook;
+    }
+
+  }
+EOF
+
+# stop nginx in order to re-load the new configuration
+systemctl stop nginx || \
+  die "Failed stop nginx. Exit code was $?"
+log "Nginx stopped."
+
+# configure nginx to auto start
+systemctl start nginx || \
+  die "Failed start nginx. Exit code was $?"
+log "Nginx started."
+systemctl enable nginx || \
+  die "Failed set nginx to autostart. Exit code was $?"
+log "Nginx configured to autostart."
+
+# allow ngix proxy-pass on selinux
+# http://stackoverflow.com/questions/23948527/13-permission-denied-while-connecting-to-upstreamnginx
+# https://www.centos.org/docs/5/html/Deployment_Guide-en-US/sec-sel-building-policy-module.html
+cat > /tmp/mynginx.te << EOF
+module mynginx 1.0;
+
+require {
+        type httpd_t;
+        type soundd_port_t;
+        class tcp_socket name_connect;
+}
+
+#============= httpd_t ==============
+
+#!!!! This avc can be allowed using the boolean 'httpd_can_network_connect'
+allow httpd_t soundd_port_t:tcp_socket name_connect;
+EOF
+
+cd /tmp/
+checkmodule -M -m -o mynginx.mod mynginx.te || \
+  die "Failed to create policy module. Exit code was $?"
+log "Created SE policy module."
+semodule_package -o mynginx.pp -m mynginx.mod || \
+  die "Failed to create SE policy package. Exit code was $?"
+log "Created SE policy package."
+semodule -i mynginx.pp || \
+  die "Failed to apply SE policy package. Exit code was $?"
+log "Applied SE policy package."
