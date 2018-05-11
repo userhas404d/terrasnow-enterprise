@@ -1,7 +1,7 @@
 """TFE and SN broker."""
 
 from flask import Flask, request, abort
-import logging
+import logging as log
 import urllib.parse
 import urllib.request
 import urllib.response
@@ -9,8 +9,8 @@ import urllib.response
 FORMAT = ("[%(asctime)s][%(levelname)s]" +
           "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
 
-logging.basicConfig(filename='terrasnow_enterprise.log', level=logging.INFO,
-                    format=FORMAT)
+log.basicConfig(filename='terrasnow_enterprise.log', level=log.INFO,
+                format=FORMAT)
 
 application = Flask(__name__)
 
@@ -19,7 +19,7 @@ application = Flask(__name__)
 def webhook():
     """Create webhook."""
     if request.method == 'POST':
-        print(request.json)
+        log(request.json)
         return '', 200
     else:
         abort(400)
