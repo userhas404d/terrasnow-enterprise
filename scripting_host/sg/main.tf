@@ -27,7 +27,7 @@ resource "aws_security_group" "private" {
     to_port   = 80
 
     security_groups = [
-      "${var.sg_allow_inbound_from}"
+      "${var.sg_allow_inbound_from}",
     ]
   }
 
@@ -37,7 +37,7 @@ resource "aws_security_group" "private" {
     to_port   = 443
 
     security_groups = [
-      "${var.sg_allow_inbound_from}"
+      "${var.sg_allow_inbound_from}",
     ]
   }
 

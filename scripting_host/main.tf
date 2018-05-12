@@ -3,14 +3,16 @@ provider "aws" {
 }
 
 locals {
-  tfe_name        = "${var.alias_name}-${var.env_type}"
+  instance_name   = "${var.alias_name}-${var.env_type}"
+  domain_name     = "${var.alias_name}.${var.target_r53_zone}"
+  target_r53_zone = "${var.target_r53_zone}."
 }
 
 # create the private sg
 module "sg" {
   source = "sg/"
 
-  priv_sg_name          = "${local.tfe_name}-private-sg"
+  priv_sg_name          = "${local.instance_name}-private-sg"
   priv_sg_desc          = "${var.alias_name} ${var.env_type} private sg"
   vpc_id                = "${var.priv_access_vpc_id}"
   sg_allow_inbound_from = "${var.sg_allow_inbound_from}"
@@ -44,7 +46,7 @@ data "aws_ami" "centos7" {
   }
 }
 
-resource "aws_instance" "tfe_instance" {
+resource "aws_instance" "scripting_host" {
   ami                    = "${data.aws_ami.centos7.image_id}"
   instance_type          = "${var.instance_type}"
   key_name               = "${var.key_name}"
@@ -60,14 +62,36 @@ resource "aws_instance" "tfe_instance" {
   }
 
   tags {
-    Name = "${local.tfe_name}-scripting-host"
+    Name = "${local.instance_name}-scripting-host"
 
     // CLAP_OFF = "0 19 * * 1-7 *"
     // CLAP_ON = ""
   }
 }
 
+module "dns" {
+  source = "dns/"
+
+  alias_name      = "${var.alias_name}"
+  target_r53_zone = "${local.target_r53_zone}"
+  alb_dns_name    = "${module.alb.dns_name}"
+  alb_zone_id     = "${module.alb.zone_id}"
+}
+
+module "alb" {
+  source                  = "alb/"
+  alb_name                = "${local.instance_name}-private-alb"
+  env_type                = "${var.env_type}"
+  https_target_group_name = "${local.instance_name}-https-target-group"
+  alb_target_group_vpc    = "${var.priv_access_vpc_id}"
+  priv_security_groups    = "${module.sg.private_sg_id}"
+  priv_alb_subnets        = "${var.priv_alb_subnets}"
+  target_instance_id      = "${aws_instance.scripting_host.id}"
+  domain_name             = "${local.domain_name}"
+  r53_zone_id             = "${module.dns.zone_id}"
+}
+
 output "private_ip" {
   description = "List of private IP addresses assigned to the instances"
-  value       = ["${aws_instance.tfe_instance.private_ip}"]
+  value       = ["${aws_instance.scripting_host.private_ip}"]
 }
