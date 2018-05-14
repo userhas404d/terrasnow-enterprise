@@ -1,7 +1,7 @@
-resource "aws_lb" "internal" {
+resource "aws_lb" "public" {
   name               = "${var.alb_name}"
-  internal           = true
   load_balancer_type = "application"
+  internal           = false
   security_groups    = ["${var.priv_security_groups}"]
   subnets            = "${var.priv_alb_subnets}"
 
@@ -24,7 +24,7 @@ resource "aws_lb_target_group_attachment" "http" {
 }
 
 resource "aws_lb_listener" "frontend_https" {
-  load_balancer_arn = "${aws_lb.internal.arn}"
+  load_balancer_arn = "${aws_lb.public.arn}"
   port              = "443"
   protocol          = "HTTPS"
   certificate_arn   = "${aws_acm_certificate.cert.arn}"
@@ -68,9 +68,9 @@ resource "aws_lb_listener_certificate" "https_listener" {
 }
 
 output "dns_name" {
-  value = "${aws_lb.internal.dns_name}"
+  value = "${aws_lb.public.dns_name}"
 }
 
 output "zone_id" {
-  value = "${aws_lb.internal.zone_id}"
+  value = "${aws_lb.public.zone_id}"
 }

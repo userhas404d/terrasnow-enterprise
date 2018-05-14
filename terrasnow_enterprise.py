@@ -33,8 +33,11 @@ def webhook():
 
 
 if __name__ == '__main__':
-    handler = RotatingFileHandler('terrasnow_enterprise.log', maxBytes=10000,
-                                  backupCount=1)
-    handler.setLevel(logging.INFO)
-    application.logger.addHandler(handler)
+    formatter = logging.Formatter(
+        "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+    handler = RotatingFileHandler("terrasnow_enterprise.log",
+                                  maxBytes=10000000,
+                                  backupCount=5)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
     application.run(debug=True)

@@ -4,6 +4,8 @@ variable "alias_name" {}
 
 variable "target_r53_zone" {}
 
+variable "pub_access_sg" {}
+
 variable "priv_access_vpc_id" {}
 
 variable "priv_alb_subnets" {

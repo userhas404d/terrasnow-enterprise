@@ -136,7 +136,8 @@ log "Nginx configured to autostart."
 # allow ngix proxy-pass on selinux
 # http://stackoverflow.com/questions/23948527/13-permission-denied-while-connecting-to-upstreamnginx
 # https://www.centos.org/docs/5/html/Deployment_Guide-en-US/sec-sel-building-policy-module.html
-cat > /tmp/mynginx.te << EOF
+cd /tmp/
+cat > mynginx.te << EOF
 module mynginx 1.0;
 
 require {
@@ -150,8 +151,8 @@ require {
 #!!!! This avc can be allowed using the boolean 'httpd_can_network_connect'
 allow httpd_t soundd_port_t:tcp_socket name_connect;
 EOF
+log "Created SE policy template."
 
-cd /tmp/
 checkmodule -M -m -o mynginx.mod mynginx.te || \
   die "Failed to create policy module. Exit code was $?"
 log "Created SE policy module."
