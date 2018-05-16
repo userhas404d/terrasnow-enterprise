@@ -66,9 +66,9 @@ log "Started flask app."
 source flask/bin/activate || \
   die "Failed to enter python venv. Exit code was $?"
 log "Entered python venv."
-pip install gunicorn flask || \
-  die "Failed to install gunicorn. Exit code was $?"
-log "Successfully installed gunicorn."
+pip install -r requirements.txt || \
+  die "Failed to install python requirements. Exit code was $?"
+log "Successfully installed python requirements."
 
 # configure the app to autostart on boot
 
@@ -162,3 +162,7 @@ log "Created SE policy package."
 semodule -i mynginx.pp || \
   die "Failed to apply SE policy package. Exit code was $?"
 log "Applied SE policy package."
+
+# ToDo: add debug mode toggle
+#  - change line 171 of /home/maintuser/terrasnow/flask/lib64/python3.4/site-packages/werkzeug/debug/__init__.py (md5 to sha256 to allow flask debugging in FIPS mode)
+#  - add systemctl stop terrasnow
