@@ -163,6 +163,10 @@ semodule -i mynginx.pp || \
   die "Failed to apply SE policy package. Exit code was $?"
 log "Applied SE policy package."
 
+# install json2hcl
+curl -SsL https://github.com/kvz/json2hcl/releases/download/v0.0.6/json2hcl_v0.0.6_linux_amd64 \
+  | sudo tee /usr/local/bin/json2hcl > /dev/null && sudo chmod 755 /usr/local/bin/json2hcl && json2hcl -version
+
 # ToDo: add debug mode toggle
 #  - change line 171 of /home/maintuser/terrasnow/flask/lib64/python3.4/site-packages/werkzeug/debug/__init__.py (md5 to sha256 to allow flask debugging in FIPS mode)
 #  - add systemctl stop terrasnow
