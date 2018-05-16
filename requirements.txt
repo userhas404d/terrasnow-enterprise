@@ -1,0 +1,3 @@
+glom==18.1.1
+Flask==1.0.2
+gunicorn==19.8.1
