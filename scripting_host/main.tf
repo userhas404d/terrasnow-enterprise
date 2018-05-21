@@ -10,8 +10,9 @@ locals {
 
 # create the private sg
 module "sg" {
-  source = "sg/"
-
+  source                = "sg/"
+  pub_sg_name           = "${local.instance_name}-public-sg"
+  pub_access_sg         = "${var.pub_access_sg}"
   priv_sg_name          = "${local.instance_name}-private-sg"
   priv_sg_desc          = "${var.alias_name} ${var.env_type} private sg"
   vpc_id                = "${var.priv_access_vpc_id}"
@@ -47,13 +48,17 @@ data "aws_ami" "centos7" {
 }
 
 resource "aws_instance" "scripting_host" {
-  ami                    = "${data.aws_ami.centos7.image_id}"
-  instance_type          = "${var.instance_type}"
-  key_name               = "${var.key_name}"
-  vpc_security_group_ids = ["${module.sg.private_sg_id}"]
-  subnet_id              = "${var.subnet_id}"
-  iam_instance_profile   = "${var.instance_role}"
-  user_data              = "${data.template_file.init.rendered}"
+  ami           = "${data.aws_ami.centos7.image_id}"
+  instance_type = "${var.instance_type}"
+  key_name      = "${var.key_name}"
+
+  vpc_security_group_ids = ["${module.sg.private_sg_id}",
+    "${module.sg.allow_user_access_sg_id}",
+  ]
+
+  subnet_id            = "${var.subnet_id}"
+  iam_instance_profile = "${var.instance_role}"
+  user_data            = "${data.template_file.init.rendered}"
 
   root_block_device {
     volume_type           = "gp2"
@@ -80,11 +85,11 @@ module "dns" {
 
 module "alb" {
   source                  = "alb/"
-  alb_name                = "${local.instance_name}-private-alb"
+  alb_name                = "${local.instance_name}-public-alb"
   env_type                = "${var.env_type}"
   https_target_group_name = "${local.instance_name}-https-target-group"
   alb_target_group_vpc    = "${var.priv_access_vpc_id}"
-  priv_security_groups    = "${module.sg.private_sg_id}"
+  priv_security_groups    = "${var.pub_access_sg}"
   priv_alb_subnets        = "${var.priv_alb_subnets}"
   target_instance_id      = "${aws_instance.scripting_host.id}"
   domain_name             = "${local.domain_name}"

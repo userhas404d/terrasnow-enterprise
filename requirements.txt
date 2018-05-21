@@ -1,3 +1,4 @@
-glom==18.1.1
 Flask==1.0.2
+glom==18.1.1
 gunicorn==19.8.1
+packaging==17.1
