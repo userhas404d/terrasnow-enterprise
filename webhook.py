@@ -14,6 +14,23 @@ from flask import Flask, request, abort
 application = Flask(__name__)
 
 
+@application.route('/', methods=['GET', 'POST'])
+def root_listener():
+    """Create webhook."""
+    if request.method == 'GET':
+        data = request.get_json().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return request.get_data(), 200
+
+    elif request.method == 'POST':
+        # log.info(request.json)
+        data = request.get_json().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return data, 200
+    else:
+        abort(400)
+
+
 @application.route('/workflow-webhook', methods=['POST'])
 def workflow_target():
     """Workflow event listener."""
