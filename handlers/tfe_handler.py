@@ -40,14 +40,24 @@ class TFERequest(object):
         """Make request."""
         # urllib sends a GET request by default, unless data is included
         if self.data:
+            log.info('Making POST request against url: {}'.format(self.url))
             self.headers['Content-Type'] = "application/vnd.api+json"
             req = urllib.request.Request(self.url, self.data, self.headers)
             self.response = urllib.request.urlopen(req)
             return self.eval_response()
         else:
-            req = urllib.request.Request(self.url, None, self.headers)
+            log.info('Making GET request against url: {}'.format(self.url))
+            req = urllib.request.Request(self.url, self.data, self.headers)
             self.response = urllib.request.urlopen(req)
             return self.eval_response()
+
+    def delete(self):
+        """Make delete request."""
+        log.info('Making DELETE request against url: {}'.format(self.url))
+        req = urllib.request.Request(self.url, self.data, self.headers,
+                                     method='DELETE')
+        self.response = urllib.request.urlopen(req)
+        return self.eval_response()
 
     def eval_response(self):
         """Convert response to dict."""
@@ -57,11 +67,14 @@ class TFERequest(object):
         return json.loads(self.response)
 
 
-def get_vcs_oauth():
+def get_vcs_oauth(conf):
     """Return VCS Oauth token."""
-    record = TFERequest('/organizations/plus3it-poc/oauth-tokens', None)
+    record = TFERequest('/organizations/plus3it-poc/oauth-tokens', None, conf)
     response = record.make_request()
     return glom(response, 'data.0.id', default=False)
+
+
+# modules
 
 
 def get_add_module_data(repo_namespace):
@@ -80,9 +93,9 @@ def get_add_module_data(repo_namespace):
             }
 
 
-def add_module(repo_namespace):
+def add_module(repo_namespace, conf):
     """Add module to terrafrom enterprise private module registry."""
     record = TFERequest('/registry-modules',
-                        get_add_module_data(repo_namespace))
+                        get_add_module_data(repo_namespace), conf)
     response = record.make_request()
     return response

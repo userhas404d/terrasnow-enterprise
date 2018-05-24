@@ -4,23 +4,40 @@
 # take actions based on request headers
 # get request header request.headers['X-Gitlab-Event'] should = "Tag Push Hook"
 
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 
-import terrasnow
+import sn_workflow_listener
 from flask import Flask, request, abort
 
 application = Flask(__name__)
 
 
-def file_write():
-    """Create a file."""
-    f = open("test.txt", "w+")
-    f.write("THIS IS JUST A TEST")
-    f.close()
+@application.route('/workflow-webhook', methods=['POST'])
+def workflow_target():
+    """Workflow event listener."""
+    if request.method == 'POST':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return json.dumps(
+                  sn_workflow_listener.workspace_event_listener(
+                     json.loads(data))), 200
 
 
-@application.route('/webhook', methods=['GET', 'POST'])
+@application.route('/variables-webhook', methods=['POST'])
+def variables_target():
+    """TFE variable creation event listener."""
+    if request.method == 'POST':
+        print(request.get_data())
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return json.dumps(
+                  sn_workflow_listener.variables_event_listener(
+                     json.loads(data))), 200
+
+
+@application.route('/gitlab-webhook', methods=['GET', 'POST'])
 def webhook():
     """Create webhook."""
     if request.method == 'GET':

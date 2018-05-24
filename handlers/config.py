@@ -3,9 +3,14 @@
 # https://github.com/nlindblad/chat-lambda/blob/master/src/config.py
 
 import configparser
+import logging as log
 import tempfile
 
 import boto3
+
+FORMAT = ("[%(asctime)s][%(levelname)s]" +
+          "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
+log.basicConfig(filename='snowgetter.log', level=log.INFO, format=FORMAT)
 
 
 class ConfigFromS3(object):

@@ -7,7 +7,6 @@
 import ast
 import json
 import logging
-import os
 import pathlib
 import urllib.parse
 import urllib.request
