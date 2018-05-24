@@ -21,7 +21,6 @@ def root_listener():
         return "SUCCESS", 200
 
     elif request.method == 'POST':
-        # log.info(request.json)
         return "SUCCESS", 200
     else:
         abort(400)

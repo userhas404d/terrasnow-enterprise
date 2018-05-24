@@ -5,7 +5,7 @@ class SnowVars(object):
     """Terraform to ServiceNow cariable converter."""
 
     def __init__(self, json_obj, cat_item_id, repo_namespace, module_version,
-                 os_type):
+                 os_type, aws_region="us-east-1", org_name="plus3it-poc"):
         """Initialize."""
         self.cat_item_id = cat_item_id
         self.cat_item_list = []
@@ -14,6 +14,8 @@ class SnowVars(object):
         self.counter = 0
         self.repo_namespace = repo_namespace
         self.module_version = module_version
+        self.aws_region = aws_region
+        self.org_name = org_name
 
     def create_var(self, var_name, obj_type, q_txt, t_tip, h_txt,
                    def_val, order_val, m_toggle):
@@ -94,6 +96,7 @@ class SnowVars(object):
 
     def create_gen_repo_namespace(self):
         """Create the repo_namespace variable."""
+        # aka repo_id
         self.create_var(var_name='gen_repo_namespace',
                         obj_type="String",
                         q_txt="Gitlab repo namespace",
@@ -106,12 +109,35 @@ class SnowVars(object):
 
     def create_gen_module_version(self):
         """Crete the gen_module_version variable."""
+        # aka repo_version
         self.create_var(var_name='gen_module_version',
                         obj_type="String",
                         q_txt="Terraform module version number",
                         t_tip="Terraform module version number",
                         def_val=self.module_version,
                         h_txt="Terraform module version number",
+                        order_val=1000,
+                        m_toggle="false")
+
+    def create_gen_region(self):
+        """Crete the gen_region variable."""
+        self.create_var(var_name='gen_region',
+                        obj_type="String",
+                        q_txt="Target AWS region",
+                        t_tip="Target AWS region",
+                        def_val=self.aws_region,
+                        h_txt="Target AWS region",
+                        order_val=1000,
+                        m_toggle="false")
+
+    def create_gen_org_name(self):
+        """Crete the gen_org_name variable."""
+        self.create_var(var_name='gen_org_name',
+                        obj_type="String",
+                        q_txt="TFE organization name",
+                        t_tip="TFE organization name",
+                        def_val=self.aws_region,
+                        h_txt="TFE organization name",
                         order_val=1000,
                         m_toggle="false")
 
@@ -123,4 +149,6 @@ class SnowVars(object):
         self.create_gen_AwsAccountInfo()
         self.create_gen_repo_namespace()
         self.create_gen_module_version()
+        self.create_gen_region()
+        self.create_gen_org_name()
         return self.cat_item_list
