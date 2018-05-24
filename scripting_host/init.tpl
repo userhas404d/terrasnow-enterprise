@@ -98,7 +98,7 @@ log "Set terrasnow service to autostart."
 
 
 # Change owner of application directory to maintuser
-chown maintuser /home/maintuser/terrasnow/* || \
+chown maintuser /home/maintuser/terrasnow && chmod -R u+rX /home/maintuser/terrasnow || \
   die "Failed allow nginx user execute permissions to applicaiton directory. Exit code was $?"
 log "Added excute permissions for nginx user on application directory."
 
