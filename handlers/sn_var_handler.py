@@ -71,9 +71,20 @@ class SnowVars(object):
                         order_val=self.counter,
                         m_toggle="false")
 
+    def create_role_var(self):
+        """Create the role variable."""
+        # different from gen_aws_role - defines values of 'child' vars
+        self.create_var(var_name='Role',
+                        obj_type="String",
+                        q_txt="aws role",
+                        t_tip="aws role",
+                        def_val="",
+                        h_txt="aws role",
+                        order_val=1,
+                        m_toggle="false")
+
     def create_os_type_var(self):
-        """Create the advanced mode toggle."""
-        # create operating system type selection check box
+        """Create the os type variable."""
         self.create_var(var_name='gen_OS_Type',
                         obj_type="String",
                         q_txt="OS Type",
@@ -83,14 +94,14 @@ class SnowVars(object):
                         order_val=1000,
                         m_toggle="false")
 
-    def create_gen_AwsAccountInfo(self):
-        """Create the advanced mode toggle."""
-        self.create_var(var_name='gen_AwsAccountInfo',
-                        obj_type="Multi Line Text",
-                        q_txt="AWS account info",
-                        t_tip="AWS account info",
-                        def_val=self.os_type,
-                        h_txt="AWS account info",
+    def create_gen_aws_role(self):
+        """Create the aws role vairable."""
+        self.create_var(var_name='aws_role',
+                        obj_type="String",
+                        q_txt="AWS role to assume",
+                        t_tip="AWS role to assume",
+                        def_val="NONE",
+                        h_txt="AWS role to assume",
                         order_val=1000,
                         m_toggle="false")
 
@@ -136,7 +147,7 @@ class SnowVars(object):
                         obj_type="String",
                         q_txt="TFE organization name",
                         t_tip="TFE organization name",
-                        def_val=self.aws_region,
+                        def_val=self.org_name,
                         h_txt="TFE organization name",
                         order_val=1000,
                         m_toggle="false")
@@ -145,10 +156,12 @@ class SnowVars(object):
         """Preform correct order of operations and return variables."""
         self.parse_tf_vars()
         self.create_adv_toggle()
-        self.create_os_type_var()
-        self.create_gen_AwsAccountInfo()
+        self.create_gen_aws_role()
         self.create_gen_repo_namespace()
         self.create_gen_module_version()
         self.create_gen_region()
         self.create_gen_org_name()
+        self.create_os_type_var()
+
+        self.create_role_var()
         return self.cat_item_list
