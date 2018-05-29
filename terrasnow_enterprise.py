@@ -55,8 +55,8 @@ def get_repo_ssh_url(response):
 
 def clone_repo(repo_url, project_name):
     """Pull target gitlab repo."""
-    subprocess.run("git clone {} /tmp/{}".format(repo_url, project_name),
-                   shell=True, check=True)
+    subprocess.call("git clone {} /tmp/{}".format(repo_url, project_name),
+                    shell=True)
     # check that the folder that's created contains expected files
     main_tf = Path("/tmp/{}/main.tf".format(project_name))
     vars_tf = Path("/tmp/{}/variables.tf".format(project_name))
@@ -163,6 +163,7 @@ def update_sn_template(repo_url, project_name, repo_namespace, module_version,
 
 def process_response(response):
     """Main."""
+    log.debug(response)
     configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
                                        "us-east-1")
     conf = configFromS3.config
