@@ -9,6 +9,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import sn_workflow_listener
+import terrasnow_enterprise
+
 from flask import Flask, request, abort
 
 application = Flask(__name__)
@@ -53,15 +55,18 @@ def variables_target():
 def webhook():
     """Create webhook."""
     if request.method == 'GET':
-        data = request.get_json().decode("utf-8", "ignore")
+        data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
-        return request.get_data(), 200
+        return json.dumps(
+                  terrasnow_enterprise.process_response(
+                     json.loads(data))), 200
 
     elif request.method == 'POST':
-        # log.info(request.json)
-        data = request.get_json().decode("utf-8", "ignore")
+        data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
-        return data, 200
+        return json.dumps(
+                  terrasnow_enterprise.process_response(
+                     json.loads(data))), 200
     else:
         abort(400)
 
