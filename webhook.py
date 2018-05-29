@@ -10,8 +10,7 @@ from logging.handlers import RotatingFileHandler
 
 import sn_workflow_listener
 import terrasnow_enterprise
-
-from flask import Flask, request, abort
+from flask import abort, Flask, render_template, request
 
 application = Flask(__name__)
 
@@ -67,6 +66,17 @@ def webhook():
         return json.dumps(
                   terrasnow_enterprise.process_response(
                      json.loads(data))), 200
+    else:
+        abort(400)
+
+
+@application.route('/pub-key', methods=['GET'])
+def show_pubkey():
+    """Create webhook."""
+    if request.method == 'GET':
+        title = "Public Deploy Key"
+        message = "test message"
+        return render_template('index.html', message=message, title=title), 200
     else:
         abort(400)
 
