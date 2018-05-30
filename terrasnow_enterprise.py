@@ -67,14 +67,16 @@ def clone_repo(repo_url, project_name):
 
 def project_check(project_path):
     """Check for required files in project folder."""
-    main_tf = Path("{}/main.tf".format(project_path))
-    vars_tf = Path("{}/variables.tf".format(project_path))
+    main_tf_path = "{}/main.tf".format(project_path)
+    vars_tf_path = "{}/variables.tf".format(project_path)
+    main_tf_file = Path(main_tf_path)
+    vars_tf_file = Path(vars_tf_path)
     # wait for required files to finish downloading
-    while not (os.path.exists(main_tf) and os.path.exists(vars_tf)):
+    while not (os.path.exists(main_tf_path) and os.path.exists(vars_tf_path)):
         time.sleep(1)
-    if main_tf.is_file() and vars_tf.is_file():
+    if main_tf_file.is_file() and vars_tf_file.is_file():
         # return path to variables file
-        return vars_tf
+        return vars_tf_file
     else:
         log.error('Failed to clone project repo.')
         raise
@@ -173,7 +175,7 @@ def update_sn_template(repo_url, project_name, repo_namespace, module_version,
 
 def process_response(response):
     """Main."""
-    log.debug(response)
+    log.debug('recieved response: {}'.format(response))
     configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
                                        "us-east-1")
     conf = configFromS3.config
