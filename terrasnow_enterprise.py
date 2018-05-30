@@ -2,9 +2,11 @@
 
 import json
 import logging as log
+import os
 import shlex
 import shutil
 import subprocess
+import time
 from pathlib import Path
 
 import handlers.config as config
@@ -55,18 +57,26 @@ def get_repo_ssh_url(response):
 
 def clone_repo(repo_url, project_name):
     """Pull target gitlab repo."""
-    subprocess.call("git clone {} /tmp/{}".format(repo_url, project_name),
+    project_path = "/tmp/{}".format(project_name)
+    subprocess.call("git clone {} {}".format(repo_url, project_path),
                     shell=True)
+    log.debug('cloned repo {}'.format(project_name))
     # check that the folder that's created contains expected files
-    main_tf = Path("/tmp/{}/main.tf".format(project_name))
-    vars_tf = Path("/tmp/{}/variables.tf".format(project_name))
+    return project_check(project_path)
+
+
+def project_check(project_path):
+    """Check for required files in project folder."""
+    main_tf = Path("{}/main.tf".format(project_path))
+    vars_tf = Path("{}/variables.tf".format(project_path))
+    # wait for required files to finish downloading
+    while not (os.path.exists(main_tf) and os.path.exists(vars_tf)):
+        time.sleep(1)
     if main_tf.is_file() and vars_tf.is_file():
-        log.info('cloned repo {}'.format(project_name))
         # return path to variables file
         return vars_tf
     else:
-        log.error('Failed to clone repo {} and the provided url: {}'.format(
-                  project_name, repo_url))
+        log.error('Failed to clone project repo.')
         raise
 
 

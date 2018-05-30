@@ -21,6 +21,10 @@ module "sg" {
 
 data "template_file" "init" {
   template = "${file("${path.module}/init.tpl")}"
+
+  vars {
+    private_gitlab_server = "${var.private_gitlab_server}"
+  }
 }
 
 data "aws_ami" "centos7" {

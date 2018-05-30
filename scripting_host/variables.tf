@@ -18,3 +18,5 @@ variable "sg_allow_inbound_from" {}
 variable "instance_type" {}
 variable "key_name" {}
 variable "instance_role" {}
+
+variable "private_gitlab_server" {}

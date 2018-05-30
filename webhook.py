@@ -70,17 +70,6 @@ def webhook():
         abort(400)
 
 
-@application.route('/pub-key', methods=['GET'])
-def show_pubkey():
-    """Create webhook."""
-    if request.method == 'GET':
-        title = "Public Deploy Key"
-        message = "test message"
-        return render_template('index.html', message=message, title=title), 200
-    else:
-        abort(400)
-
-
 if __name__ == '__main__':
     formatter = logging.Formatter(
         "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")

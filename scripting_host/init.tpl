@@ -107,6 +107,30 @@ sudo usermod -a -G maintuser nginx || \
   die "Failed add nginx user to maintuser group. Exit code was $?"
 log "Added nginx to maintuser group."
 
+# Create the repo-deploy key and make the public key http accessable
+mkdir /usr/share/nginx/html/pub-key
+ssh-keygen -t rsa -C "none@none.com" -b 4096 -N '' -f /root/.ssh/id_rsa || \
+  die "Failed add create ssh key. Exit code was $?"
+log "Created ssh key."
+cat /root/.ssh/id_rsa.pub > /usr/share/nginx/html/pub-key/key.txt || \
+  die "Failed to add key to html directory. Exit code was $?"
+log "Added public ssh key to html directory."
+
+# Copy the ssh key. Copying vice creating in the maintuser ssh dir directly to
+# allow root to consume the keys without any overhead.
+cp /root/.ssh/id_rsa /home/maintuser/.ssh/id_rsa
+cp /root/.ssh/id_rsa.pub /home/maintuser/.ssh/id_rsa.pub
+
+# Create an ssh config file and add the gitlab host
+cat > /home/maintuser/.ssh/config << EOF
+#Private Gitlab Server
+Host ${private_gitlab_server}
+StrictHostKeyChecking no
+EOF
+
+# change file owner of ssh files
+chown maintuser /home/maintuser/.ssh/*
+
 # Create reverse proxy main config
 cat > /etc/nginx/conf.d/default.conf << EOF
 server {
@@ -115,6 +139,11 @@ server {
 
     location / {
     proxy_pass http://127.0.0.1:8000/;
+    }
+
+    location /pub-key/ {
+    alias /usr/share/nginx/html/pub-key/;
+    autoindex on;
     }
 
   }
