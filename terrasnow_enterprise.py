@@ -72,8 +72,8 @@ def project_check(project_path):
     main_tf_file = Path(main_tf_path)
     vars_tf_file = Path(vars_tf_path)
     # wait for required files to finish downloading
-    while not (os.path.exists(main_tf_path) and os.path.exists(vars_tf_path)):
-        time.sleep(1)
+    # while not (os.path.exists(main_tf_path)):
+    #     time.sleep(1)
     if main_tf_file.is_file() and vars_tf_file.is_file():
         # return path to variables file
         return vars_tf_file

@@ -69,7 +69,9 @@ class TFERequest(object):
 
 def get_vcs_oauth(conf):
     """Return VCS Oauth token."""
-    record = TFERequest('/organizations/plus3it-poc/oauth-tokens', None, conf)
+    org = "plus3it-poc02"
+    record = TFERequest('/organizations/{}/oauth-tokens'.format(org), None,
+                        conf)
     response = record.make_request()
     return glom(response, 'data.0.id', default=False)
 
