@@ -101,6 +101,11 @@ module "alb" {
 }
 
 output "private_ip" {
-  description = "List of private IP addresses assigned to the instances"
-  value       = ["${aws_instance.scripting_host.private_ip}"]
+  description = "Instance private IP addresse"
+  value       = "${aws_instance.scripting_host.private_ip}"
+}
+
+output "webook_url" {
+  description = "Public DNS entry for ALB"
+  value = "https://${local.domain_name}"
 }
