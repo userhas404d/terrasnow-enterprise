@@ -57,9 +57,12 @@ def get_repo_ssh_url(response):
 
 def clone_repo(repo_url, project_name):
     """Pull target gitlab repo."""
+    log.debug("cloning repo: {} for project: {}".format(repo_url,
+              project_name))
     project_path = "/tmp/{}".format(project_name)
-    subprocess.call("git clone {} {}".format(repo_url, project_path),
-                    shell=True)
+    test = subprocess.check_output("git clone {} {}".format(repo_url,
+                                   project_path), shell=True)
+    log.debug('git clone output: {}'.format(test.output))
     log.debug('cloned repo {}'.format(project_name))
     # check that the folder that's created contains expected files
     return project_check(project_path)
