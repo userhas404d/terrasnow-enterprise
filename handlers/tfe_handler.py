@@ -74,30 +74,3 @@ def get_vcs_oauth(conf):
                         conf)
     response = record.make_request()
     return glom(response, 'data.0.id', default=False)
-
-
-# modules
-
-
-def get_add_module_data(repo_namespace):
-    """Return add moudule data block."""
-    return {
-            "data": {
-                "attributes":
-                {
-                 "vcs-repo": {
-                   "identifier": "{}".format(repo_namespace),
-                   "oauth-token-id": "{}".format(get_vcs_oauth())
-                  }
-                },
-                "type": "registry-modules"
-              }
-            }
-
-
-def add_module(repo_namespace, conf):
-    """Add module to terrafrom enterprise private module registry."""
-    record = TFERequest('/registry-modules',
-                        get_add_module_data(repo_namespace), conf)
-    response = record.make_request()
-    return response

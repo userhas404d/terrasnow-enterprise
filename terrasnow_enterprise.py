@@ -60,10 +60,12 @@ def clone_repo(repo_url, project_name):
     log.debug("cloning repo: {} for project: {}".format(repo_url,
               project_name))
     project_path = "/tmp/{}".format(project_name)
-    test = subprocess.check_output("git clone {} {}".format(repo_url,
-                                   project_path), shell=True)
-    log.debug('git clone output: {}'.format(test.output))
-    log.debug('cloned repo {}'.format(project_name))
+    try:
+        cmd = "/usr/bin/git clone {} {}".format(repo_url, project_path)
+        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        log.info('cloned repo {}'.format(project_name))
+    except subprocess.CalledProcessError as e:
+        log.info('git clone failed.. {}'.format(e.output))
     # check that the folder that's created contains expected files
     return project_check(project_path)
 
@@ -97,13 +99,16 @@ def hcl_to_json(vars_tf_path):
     json_obj = []
     vars_tf_path = str(vars_tf_path)
     tf_loc = shlex.quote(vars_tf_path)
-    cmd = 'json2hcl -reverse <' + tf_loc
-    process = subprocess.run(cmd,
-                             shell=True,
-                             universal_newlines=True,
-                             stdout=subprocess.PIPE)
-    json_obj.append(json.loads(process.stdout))
-    return json_obj
+    cmd = '/usr/local/bin/json2hcl -reverse < {}'.format(tf_loc)
+    try:
+        output = subprocess.check_output(cmd, shell=True,
+                                         stderr=subprocess.STDOUT)
+        log.debug('hcl output: {}'.format(output))
+        json_obj.append(json.loads(output.decode("utf-8")))
+        return json_obj
+    except subprocess.CalledProcessError as e:
+        log.error('hcl call: {} failed.'.format(cmd))
+        log.error(e.output)
 
 
 def create_sn_cat_item(cat_item_name, cat_item_description, sn_conf):
@@ -139,7 +144,8 @@ def create_sn_template(repo_url, project_name, repo_namespace, module_version,
                        cat_item_name, cat_item_description, sn_conf):
     """Create SN template."""
     vars_tf_path = clone_repo(repo_url, project_name)
-    cat_sys_id = create_sn_cat_item(cat_item_name, cat_item_description)
+    cat_sys_id = create_sn_cat_item(cat_item_name, cat_item_description,
+                                    sn_conf)
     vars_tf_json_obj = hcl_to_json(vars_tf_path)
     create_cat_item_vars(vars_tf_json_obj, cat_sys_id, repo_namespace,
                          module_version, sn_conf)
@@ -209,5 +215,3 @@ def process_response(response):
                            module_version, project_name, cat_item_description,
                            conf)
         log.info('New ServiceNow Terraform module created.')
-        log.info('Adding module to TFE private registry.')
-        tfe_handler.add_module(repo_namespace)
