@@ -119,3 +119,8 @@ output "sn_variables_webhook" {
   description = "ServiceNow variables webhook"
   value = "https://${local.domain_name}/variables-webhook"
 }
+
+output "pub_deployment_key" {
+  description = "Public key"
+  value = "https://${local.domain_name}/pub-key/key.txt"
+}
