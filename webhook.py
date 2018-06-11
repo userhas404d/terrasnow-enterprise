@@ -15,6 +15,7 @@ from flask import abort, Flask, render_template, request
 application = Flask(__name__)
 
 
+# Root of webhook listener. Returns success by default.
 @application.route('/', methods=['GET', 'POST'])
 def root_listener():
     """Create webhook."""
@@ -27,6 +28,8 @@ def root_listener():
         abort(400)
 
 
+# Creates/Deletes a TFE workspace using the SN Cat item base module's source
+# repo as provided from SN catalog item order request
 @application.route('/workflow-webhook', methods=['POST'])
 def workflow_target():
     """Workflow event listener."""
@@ -38,6 +41,8 @@ def workflow_target():
                      json.loads(data))), 200
 
 
+# Listens for catalog item variables object sent from SN catalog item order
+# request
 @application.route('/variables-webhook', methods=['POST'])
 def variables_target():
     """TFE variable creation event listener."""
@@ -50,6 +55,8 @@ def variables_target():
                      json.loads(data))), 200
 
 
+# listens for tag update event sent from gitlab and creates the associated
+# SN catalog item
 @application.route('/gitlab-webhook', methods=['GET', 'POST'])
 def webhook():
     """Create webhook."""

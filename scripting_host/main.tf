@@ -100,12 +100,22 @@ module "alb" {
   r53_zone_id             = "${module.dns.zone_id}"
 }
 
-output "private_ip" {
+output "_private_ip" {
   description = "Instance private IP addresse"
   value       = "${aws_instance.scripting_host.private_ip}"
 }
 
-output "webook_url" {
-  description = "Public DNS entry for ALB"
-  value = "https://${local.domain_name}"
+output "gitlab_webhook" {
+  description = "Gitlab webhook"
+  value = "https://${local.domain_name}/gitlab-webhook"
+}
+
+output "tfe_workflow_webhook" {
+  description = "Terraform Enterprise Workflow webhook"
+  value = "https://${local.domain_name}/workflow-webhook"
+}
+
+output "sn_variables_webhook" {
+  description = "ServiceNow variables webhook"
+  value = "https://${local.domain_name}/variables-webhook"
 }
