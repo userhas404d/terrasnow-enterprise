@@ -3,6 +3,7 @@
 import logging as log
 import urllib
 
+import handlers.aws_assume_role as aws_assume_role
 import handlers.config as config
 import handlers.tfe_handler as tfe_handler
 import handlers.tfe_var_handler as tfe_var_handler
@@ -11,7 +12,8 @@ from glom import glom
 
 FORMAT = ("[%(asctime)s][%(levelname)s]" +
           "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
-log.basicConfig(filename='snowgetter.log', level=log.INFO, format=FORMAT)
+log.basicConfig(filename='terrasnow_enterprise.log', level=log.INFO,
+                format=FORMAT)
 
 # workspace
 
@@ -128,3 +130,15 @@ def create_vars(region, json_obj, org, workspace):
     else:
         log.error("Input json object was empty.")
         return "ERROR: vars json object cannot be empty"
+
+
+# assume role
+
+def assume_role_listener(request):
+    """Process assume role request."""
+    log.debug('Recieved assume role request: {}'.format(request))
+    role = glom(request, 'data.0.role', default=False)
+    duration = glom(request, 'data.0.duration', default=False)
+    if duration:
+        duration = int(duration)
+    return aws_assume_role.get_assumed_role_credentials(role, duration)

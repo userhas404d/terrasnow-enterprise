@@ -58,8 +58,8 @@ def variables_target():
 # listens for tag update event sent from gitlab and creates the associated
 # SN catalog item
 @application.route('/gitlab-webhook', methods=['GET', 'POST'])
-def webhook():
-    """Create webhook."""
+def gitlab_target():
+    """Create gitlab webhook."""
     if request.method == 'GET':
         data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
@@ -75,6 +75,16 @@ def webhook():
                      json.loads(data))), 200
     else:
         abort(400)
+
+
+@application.route('/aws-assume-role-webhook', methods=['POST'])
+def assume_role_target():
+    """Return assumed role credentials."""
+    if request.method == 'POST':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return json.dumps(sn_workflow_listener.assume_role_listener(
+                          json.loads(data))), 200
 
 
 if __name__ == '__main__':

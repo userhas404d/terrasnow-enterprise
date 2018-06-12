@@ -21,7 +21,8 @@ from packaging.version import Version
 
 FORMAT = ("[%(asctime)s][%(levelname)s]" +
           "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
-log.basicConfig(filename='snowgetter.log', level=log.DEBUG, format=FORMAT)
+log.basicConfig(filename='terrasnow_enterprise.log', level=log.DEBUG,
+                format=FORMAT)
 
 
 def get_sn_tf_cat_item(repo_namespace, sn_conf):

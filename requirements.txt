@@ -1,6 +1,7 @@
+boto3==1.5.30
+celery==4.2.0
 Flask==1.0.2
 glom==18.1.1
 gunicorn==19.8.1
-packaging==17.1
 invoke==0.22.1
-boto3==1.5.30
+packaging==17.1
