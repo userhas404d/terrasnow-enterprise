@@ -47,7 +47,7 @@ class SnowClientScript(object):
                                   script_type="onChange",
                                   cat_var="adv_toggle",
                                   script=self.getJavascriptText(
-                                   'createDisplayToggleOnload.js'))
+                                   'createDisplayToggleOnChange.js'))
 
     def create_hide_generic_vars(self):
         """Create the dispaly toggle client script."""

@@ -15,7 +15,8 @@ class SnowCatalogItem(object):
         self.category = "062ef22284741300777f3b0167a0480d"
         self.description = description
         # terraform deployment workflow
-        self.workflow = "8c804bc78d051300777fcdb2187743ec"
+        self.workflow = "29af073c61525300777fedec18548074"
+        # global workflow: "8c804bc78d051300777fcdb2187743ec"
         self.isactive = "true"
 
     def data(self):

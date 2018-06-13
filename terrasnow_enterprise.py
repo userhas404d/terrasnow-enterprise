@@ -14,7 +14,6 @@ import handlers.sn_client_script_handler as sn_client_script_handler
 import handlers.sn_var_handler as sn_var_handler
 import handlers.snow_cat_item as snow_cat_item
 import handlers.snowgetter as snowgetter
-import handlers.tfe_handler as tfe_handler
 import packaging
 from glom import glom
 from packaging.version import Version
@@ -180,7 +179,7 @@ def update_sn_template(repo_url, project_name, repo_namespace, module_version,
     cat_item_description = "module: {} version: {}".format(
                            repo_namespace, module_version)
     create_sn_template(repo_url, project_name, repo_namespace, module_version,
-                       project_name, cat_item_description)
+                       project_name, cat_item_description, sn_conf)
 
 
 def process_response(response):

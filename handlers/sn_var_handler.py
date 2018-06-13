@@ -5,7 +5,7 @@ class SnowVars(object):
     """Terraform to ServiceNow cariable converter."""
 
     def __init__(self, json_obj, cat_item_id, repo_namespace, module_version,
-                 os_type, aws_region="us-east-1", org_name="plus3it-poc"):
+                 os_type, aws_region="us-east-1", org_name="plus3it-poc02"):
         """Initialize."""
         self.cat_item_id = cat_item_id
         self.cat_item_list = []
@@ -74,12 +74,12 @@ class SnowVars(object):
     def create_role_var(self):
         """Create the role variable."""
         # different from gen_aws_role - defines values of 'child' vars
-        self.create_var(var_name='Role',
+        self.create_var(var_name='Roles',
                         obj_type="Select Box",
-                        q_txt="aws role",
-                        t_tip="aws role",
+                        q_txt="AWS role(s)",
+                        t_tip="AWS role(s)",
                         def_val="",
-                        h_txt="aws role",
+                        h_txt="AWS role(s)",
                         order_val=1,
                         m_toggle="false")
 
@@ -96,7 +96,7 @@ class SnowVars(object):
 
     def create_gen_aws_role(self):
         """Create the aws role vairable."""
-        self.create_var(var_name='aws_role',
+        self.create_var(var_name='gen_aws_role',
                         obj_type="String",
                         q_txt="AWS role to assume",
                         t_tip="AWS role to assume",

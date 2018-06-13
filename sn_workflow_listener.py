@@ -137,8 +137,72 @@ def create_vars(region, json_obj, org, workspace):
 def assume_role_listener(request):
     """Process assume role request."""
     log.debug('Recieved assume role request: {}'.format(request))
-    role = glom(request, 'data.0.role', default=False)
-    duration = glom(request, 'data.0.duration', default=False)
-    if duration:
-        duration = int(duration)
-    return aws_assume_role.get_assumed_role_credentials(role, duration)
+    region = glom(request, 'data.0.region', default=False)
+    org_name = glom(request, 'data.0.org_name', default=False)
+    workspace_name = glom(request, 'data.0.workspace_name', default=False)
+    role = glom(request, 'data.0.assume_role.0.role', default=False)
+    duration = 900
+    temp_creds = aws_assume_role.get_assumed_role_credentials(role, duration)
+    aws_access_key_id = glom(temp_creds, 'aws_access_key_id', default=False)
+    if aws_access_key_id:
+        return create_env_vars(region, workspace_name, org_name, temp_creds)
+    else:
+        log.error("Assume role request failed: {}".format(temp_creds))
+        return "ERROR: Assume role request failed"
+
+
+def create_env_vars(region, workspace, org, temp_creds):
+    """Create TFE Credential Environment Variables."""
+    # pull the configuration
+    configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
+                                       region)
+    conf = configFromS3.config
+    # get properly formatted json objs for variable creation
+    access_key_id = create_access_key_id_var(
+      glom(temp_creds, 'aws_access_key_id', default=False),
+      workspace, org)
+    secret_access_key = create_secret_access_key_id_var(
+      glom(temp_creds, 'aws_secret_access_key', default=False),
+      workspace, org)
+    # check to see if the temp creds exist
+    if access_key_id and secret_access_key:
+        api_endpoint = "/vars"
+        response = {}
+        record = (
+          tfe_handler.TFERequest(api_endpoint, access_key_id, conf))
+        response['access_key_id'] = record.make_request()
+        record = (
+          tfe_handler.TFERequest(api_endpoint, secret_access_key, conf))
+        response['secret_access_key'] = record.make_request()
+        log.debug('Create tfe_var response: {}'.format(response))
+        return response
+    else:
+        log.error("Access Key Id or Secret Access Key not found.")
+        return "ERROR: Access Key Id or Secret Access Key not found"
+
+
+def create_access_key_id_var(access_key_id, workspace, org):
+    """Return env var object."""
+    if access_key_id:
+        return tfe_var_handler.TFEVars(key="AWS_ACCESS_KEY_ID",
+                                       value=access_key_id,
+                                       category='env',
+                                       org=org,
+                                       workspace=workspace).get_var()
+    else:
+        log.error("Access Key Id not found.")
+        return False
+
+
+def create_secret_access_key_id_var(secret_access_key, workspace, org):
+    """Return env var object."""
+    if secret_access_key:
+        return tfe_var_handler.TFEVars(key="AWS_SECRET_ACCESS_KEY",
+                                       value=secret_access_key,
+                                       category='env',
+                                       org=org,
+                                       workspace=workspace,
+                                       is_senative=True).get_var()
+    else:
+        log.error("Secret Access Key not found.")
+        return False
