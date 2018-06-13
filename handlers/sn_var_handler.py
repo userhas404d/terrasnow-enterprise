@@ -75,7 +75,7 @@ class SnowVars(object):
         """Create the role variable."""
         # different from gen_aws_role - defines values of 'child' vars
         self.create_var(var_name='Role',
-                        obj_type="String",
+                        obj_type="Select Box",
                         q_txt="aws role",
                         t_tip="aws role",
                         def_val="",
