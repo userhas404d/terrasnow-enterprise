@@ -1,40 +1,21 @@
 function onLoad() {
  function getAWSAccountInfo(){
+  //call the account query script include and start the getAWSAccountInfo wf
 	var ga = new GlideAjax("TerraformAWSAccountQuery");
-	// add name parameter to define which function we want to call
-	// method name in script include will be getFavorites
 	ga.addParam("sysparm_name", "getAWSAccountInfo");
-	// submit request to server, call ajaxResponse function with server response
 	ga.getXMLWait();
-	var workflowSysId = ga.getAnswer();
-	jslog("getAwsAccountInfo response: " + workflowSysId);
-	var workflowGlideRecord = getWorkflowGlideRecord(workflowSysId);
-	var jsonObj = getWorkflowResults(workflowGlideRecord);
-	return jsonObj;
+	var wfSysId = ga.getAnswer();
+  // Get the getAWSAccountInfo wf sysid and send it back to the script include to get the workflow results
+  // doing this b/c I couldn't get callbacks to work with GlideAjax..
+	var wfga = new GlideAjax("TerraformAWSAccountQuery");
+	wfga.addParam("sysparm_name", "getResults");
+	wfga.addParam("wf_sys_id", wfSysId);
+	wfga.getXMLWait();
+  //Expects a json object containing the AWS account info.
+	result = JSON.parse(wfga.getAnswer());
+	setValues(result);
  }
 
-function getWorkflowGlideRecord(sysId){
-	var gr = new GlideRecord('wf_context');
-		 gr.addQuery('sys_id', sysId);
-		 gr.query();
-			while(gr.next()){
-					return gr;
-			   }
-}
-
-function getWorkflowResults(workflowGlideRecord){
-   			var result = workflowGlideRecord.scratchpad;
-//   			jslog('json_obj: ' + result);
-        //convert scratchpad string result to json obj
-   			var test = JSON.parse(result);
-//         //extract 'aws account info' as json string from scratchpad json obj
-  			var json_str = test['json_obj'];
-//   			jslog("result json: " +json_str);
-//         //convert 'aws account info' json string into json obj
-  	         var json_obj = JSON.parse(json_str);
-//         //pass json obj to set_values function
-	return json_obj;
-}
 
 function setValues(json_obj){
    // add none as a first option so all values are actually selectable.
@@ -80,12 +61,13 @@ g_form.setValue('gen_AwsAccountInfo', JSON.stringify(json_obj));
 function showLoadingOverlay(){
 	showLoadingDialog();
 	setTimeout(function() {
-		setValues(getAWSAccountInfo());
+		//setValues(getAWSAccountInfo());
+		getAWSAccountInfo();
 		hideLoadingDialog();
 	}, 20000);
 }
 
-//Show the loading dialog immediately as the form loads
+//Show the loading dialog as soon as the form loads
 showLoadingOverlay();
 // var json_str = waitForElement(sys_id);
 
