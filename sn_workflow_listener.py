@@ -88,7 +88,23 @@ def variables_event_listener(request):
     cat_vars = glom(request, 'data.0.cat_vars.0', default=False)
     org_name = glom(request, 'data.0.org_name', default=False)
     workspace_name = glom(request, 'data.0.workspace_name', default=False)
-    return create_vars(region, cat_vars, org_name, workspace_name)
+    role = glom(request, 'data.0.role', default=False)
+    return populate_tfe_vars(region, cat_vars, org_name, workspace_name, role)
+
+
+def populate_tfe_vars(region, cat_vars, org_name, workspace_name, role):
+    """Create TFE vars and return results."""
+    result = []
+    create_tf_vars_response = {}
+    create_env_vars_response = {}
+    create_tf_vars_response['tf_vars'] = (
+      create_tfe_tf_vars(region, cat_vars, org_name, workspace_name))
+    create_env_vars_response['env_vars'] = (
+      create_tfe_env_vars(region, role, org_name, workspace_name))
+    result[0] = create_tf_vars_response
+    result[1] = create_env_vars_response
+    log.info('returning result: {}'.format(result))
+    return result
 
 
 def remove_prefix(text, prefix):
@@ -109,7 +125,7 @@ def parse_vars(json_obj):
     return raw_vars
 
 
-def create_vars(region, json_obj, org, workspace):
+def create_tfe_tf_vars(region, json_obj, org, workspace):
     """Populate TFE vars with raw var data."""
     configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
                                        region)
@@ -145,13 +161,28 @@ def assume_role_listener(request):
     temp_creds = aws_assume_role.get_assumed_role_credentials(role, duration)
     aws_access_key_id = glom(temp_creds, 'aws_access_key_id', default=False)
     if aws_access_key_id:
-        return create_env_vars(region, workspace_name, org_name, temp_creds)
+        return create_cred_env_vars(region, workspace_name, org_name,
+                                    temp_creds)
     else:
         log.error("Assume role request failed: {}".format(temp_creds))
         return "ERROR: Assume role request failed"
 
 
-def create_env_vars(region, workspace, org, temp_creds):
+def create_tfe_env_vars(region, role, org_name, workspace_name):
+    """Create TFE envirornment variables."""
+    log.debug('Creating tfe env vars.')
+    duration = 900
+    temp_creds = aws_assume_role.get_assumed_role_credentials(role, duration)
+    aws_access_key_id = glom(temp_creds, 'aws_access_key_id', default=False)
+    if aws_access_key_id:
+        return create_cred_env_vars(region, workspace_name, org_name,
+                                    temp_creds)
+    else:
+        log.error("Assume role request failed: {}".format(temp_creds))
+        return "ERROR: Assume role request failed"
+
+
+def create_cred_env_vars(region, workspace, org, temp_creds):
     """Create TFE Credential Environment Variables."""
     # pull the configuration
     configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
