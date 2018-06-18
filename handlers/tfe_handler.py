@@ -15,7 +15,7 @@ log.basicConfig(level=log.DEBUG, format=FORMAT)
 class TFERequest(object):
     """Terraform Enterprise record."""
 
-    def __init__(self, target, data, conf):
+    def __init__(self, target, data, conf, file=None):
         """Consturct TFE REST call."""
         self.host = conf.get("TERRAFORM_ENTERPRISE", "INSTANCE_NAME")
         self.atlas_token = conf.get("TERRAFORM_ENTERPRISE", "ATLAS_TOKEN")
@@ -25,6 +25,7 @@ class TFERequest(object):
         self.data = self.parse_data(data)
         self.url = self.base_url + self.target
         self.response = None
+        self.file = file
 
     def parse_data(self, data):
         """Parse data."""
@@ -38,8 +39,9 @@ class TFERequest(object):
 
     def make_request(self):
         """Make request."""
-        # urllib sends a GET request by default, unless data is included
-        if self.data:
+        if self.file:
+            print("RECIEVED FILE REQUEST.")
+        elif self.data:
             log.info('Making POST request against url: {}'.format(self.url))
             self.headers['Content-Type'] = "application/vnd.api+json"
             req = urllib.request.Request(self.url, self.data, self.headers)

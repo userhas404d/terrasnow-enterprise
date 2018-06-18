@@ -28,31 +28,14 @@ def root_listener():
         abort(400)
 
 
-# Creates/Deletes a TFE workspace using the SN Cat item base module's source
-# repo as provided from SN catalog item order request
-@application.route('/workflow-webhook', methods=['POST'])
-def workflow_target():
-    """Workflow event listener."""
+@application.route('/aws-assume-role-webhook', methods=['POST'])
+def assume_role_target():
+    """Return assumed role credentials."""
     if request.method == 'POST':
         data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
-        return json.dumps(
-                  sn_workflow_listener.workspace_event_listener(
-                     json.loads(data))), 200
-
-
-# Listens for catalog item variables object sent from SN catalog item order
-# request
-@application.route('/variables-webhook', methods=['POST'])
-def variables_target():
-    """TFE variable creation event listener."""
-    if request.method == 'POST':
-        print(request.get_data())
-        data = request.get_data().decode("utf-8", "ignore")
-        application.logger.error(data)
-        return json.dumps(
-                  sn_workflow_listener.variables_event_listener(
-                     json.loads(data))), 200
+        return json.dumps(sn_workflow_listener.assume_role_listener(
+                          json.loads(data))), 200
 
 
 # listens for tag update event sent from gitlab and creates the associated
@@ -77,14 +60,41 @@ def gitlab_target():
         abort(400)
 
 
-@application.route('/aws-assume-role-webhook', methods=['POST'])
-def assume_role_target():
-    """Return assumed role credentials."""
+@application.route('/tfe-run-webhook', methods=['POST'])
+def tfe_run_target():
+    """TFE run event listener."""
     if request.method == 'POST':
         data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
-        return json.dumps(sn_workflow_listener.assume_role_listener(
-                          json.loads(data))), 200
+        return json.dumps(
+                  sn_workflow_listener.TFE_run_listener(
+                     json.loads(data))), 200
+
+
+# Listens for catalog item variables object sent from SN catalog item order
+# request
+@application.route('/variables-webhook', methods=['POST'])
+def variables_target():
+    """TFE variable creation event listener."""
+    if request.method == 'POST':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return json.dumps(
+                  sn_workflow_listener.variables_event_listener(
+                     json.loads(data))), 200
+
+
+# Creates/Deletes a TFE workspace using the SN Cat item base module's source
+# repo as provided from SN catalog item order request
+@application.route('/workflow-webhook', methods=['POST'])
+def workflow_target():
+    """Workflow event listener."""
+    if request.method == 'POST':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        return json.dumps(
+                  sn_workflow_listener.workspace_event_listener(
+                     json.loads(data))), 200
 
 
 if __name__ == '__main__':

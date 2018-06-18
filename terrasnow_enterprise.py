@@ -2,14 +2,11 @@
 
 import json
 import logging as log
-import os
 import shlex
-import shutil
 import subprocess
-import time
-from pathlib import Path
 
 import handlers.config as config
+import handlers.git_handler as git_handler
 import handlers.sn_client_script_handler as sn_client_script_handler
 import handlers.sn_var_handler as sn_var_handler
 import handlers.snow_cat_item as snow_cat_item
@@ -53,45 +50,6 @@ def get_gitlab_namespace(response):
 def get_repo_ssh_url(response):
     """Return the giblab repo URL."""
     return glom(response, 'project.git_ssh_url', default=False)
-
-
-def clone_repo(repo_url, project_name):
-    """Pull target gitlab repo."""
-    log.debug("cloning repo: {} for project: {}".format(repo_url,
-              project_name))
-    project_path = "/tmp/{}".format(project_name)
-    try:
-        cmd = "/usr/bin/git clone {} {}".format(repo_url, project_path)
-        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        log.info('cloned repo {}'.format(project_name))
-    except subprocess.CalledProcessError as e:
-        log.info('git clone failed.. {}'.format(e.output))
-    # check that the folder that's created contains expected files
-    return project_check(project_path)
-
-
-def project_check(project_path):
-    """Check for required files in project folder."""
-    main_tf_path = "{}/main.tf".format(project_path)
-    vars_tf_path = "{}/variables.tf".format(project_path)
-    main_tf_file = Path(main_tf_path)
-    vars_tf_file = Path(vars_tf_path)
-    # wait for required files to finish downloading
-    while not (os.path.exists(main_tf_path)):
-        time.sleep(1)
-    if main_tf_file.is_file() and vars_tf_file.is_file():
-        # return path to variables file
-        return vars_tf_file
-    else:
-        log.error('Failed to clone project repo.')
-        raise
-
-
-def cleanup(project_name):
-    """Remove the cloned repo from the local disk."""
-    target_dir = "/tmp/{}".format(project_name)
-    shutil.rmtree(target_dir)
-    log.info('Cleanup of {} successful'.format(target_dir))
 
 
 def hcl_to_json(vars_tf_path):
@@ -143,13 +101,14 @@ def create_cat_item_vars(json_obj, cat_sys_id, repo_namespace, module_version,
 def create_sn_template(repo_url, project_name, repo_namespace, module_version,
                        cat_item_name, cat_item_description, sn_conf):
     """Create SN template."""
-    vars_tf_path = clone_repo(repo_url, project_name)
+    project_path = git_handler.clone_repo(repo_url, project_name)
+    vars_tf_path = git_handler.get_tf_vars_file(project_path)
     cat_sys_id = create_sn_cat_item(cat_item_name, cat_item_description,
                                     sn_conf)
     vars_tf_json_obj = hcl_to_json(vars_tf_path)
     create_cat_item_vars(vars_tf_json_obj, cat_sys_id, repo_namespace,
                          module_version, sn_conf)
-    cleanup(project_name)
+    git_handler.cleanup(project_name)
 
 
 def compare_versions(sn_template_version, gitlab_template_version):
