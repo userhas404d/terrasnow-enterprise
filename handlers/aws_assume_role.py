@@ -3,6 +3,11 @@ import logging as log
 
 import boto3
 
+FORMAT = ("[%(asctime)s][%(levelname)s]" +
+          "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s")
+log.basicConfig(filename='terrasnow_enterprise.log', level=log.INFO,
+                format=FORMAT)
+
 sts = boto3.client('sts')
 
 

@@ -5,7 +5,8 @@ class SnowVars(object):
     """Terraform to ServiceNow cariable converter."""
 
     def __init__(self, json_obj, cat_item_id, repo_namespace, module_version,
-                 os_type, aws_region="us-east-1", org_name="plus3it-poc02"):
+                 os_type, repo_url, aws_region="us-east-1",
+                 org_name="plus3it-poc02"):
         """Initialize."""
         self.cat_item_id = cat_item_id
         self.cat_item_list = []
@@ -16,6 +17,7 @@ class SnowVars(object):
         self.module_version = module_version
         self.aws_region = aws_region
         self.org_name = org_name
+        self.repo_url = repo_url
 
     def create_var(self, var_name, obj_type, q_txt, t_tip, h_txt,
                    def_val, order_val, m_toggle):
@@ -105,6 +107,17 @@ class SnowVars(object):
                         order_val=1000,
                         m_toggle="false")
 
+    def create_gen_aws_account_info(self):
+        """Create the aws role vairable."""
+        self.create_var(var_name='gen_AwsAccountInfo',
+                        obj_type="Multi Line Text",
+                        q_txt="AWS account info",
+                        t_tip="AWS account info",
+                        def_val="NONE",
+                        h_txt="AWS account info",
+                        order_val=1000,
+                        m_toggle="false")
+
     def create_gen_repo_namespace(self):
         """Create the repo_namespace variable."""
         # aka repo_id
@@ -152,16 +165,29 @@ class SnowVars(object):
                         order_val=1000,
                         m_toggle="false")
 
+    def create_gen_repo_url(self):
+        """Crete the gen_org_name variable."""
+        self.create_var(var_name='gen_repo_url',
+                        obj_type="String",
+                        q_txt="Gitlab repo url",
+                        t_tip="Gitlab repo url",
+                        def_val=self.repo_url,
+                        h_txt="Gitlab repo url",
+                        order_val=1000,
+                        m_toggle="false")
+
     def get_vars(self):
         """Preform correct order of operations and return variables."""
         self.parse_tf_vars()
         self.create_adv_toggle()
         self.create_gen_aws_role()
+        self.create_gen_aws_account_info()
         self.create_gen_repo_namespace()
         self.create_gen_module_version()
         self.create_gen_region()
         self.create_gen_org_name()
         self.create_os_type_var()
+        self.create_gen_repo_url()
 
         self.create_role_var()
         return self.cat_item_list

@@ -5,3 +5,4 @@ glom==18.1.1
 gunicorn==19.8.1
 invoke==0.22.1
 packaging==17.1
+requests==2.19.1

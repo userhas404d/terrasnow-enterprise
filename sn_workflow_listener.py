@@ -5,7 +5,9 @@ import urllib
 
 import handlers.aws_assume_role as aws_assume_role
 import handlers.config as config
+import handlers.git_handler as git_handler
 import handlers.tfe_handler as tfe_handler
+import handlers.tfe_run_handler as tfe_run_handler
 import handlers.tfe_var_handler as tfe_var_handler
 import handlers.tfe_workspace_handler as tfe_workspace_handler
 from glom import glom
@@ -15,8 +17,8 @@ FORMAT = ("[%(asctime)s][%(levelname)s]" +
 log.basicConfig(filename='terrasnow_enterprise.log', level=log.INFO,
                 format=FORMAT)
 
-# workspace
 
+# TFE workspace
 
 def workspace_event_listener(request):
     """Process workflow request."""
@@ -29,45 +31,18 @@ def workspace_event_listener(request):
     action = glom(request, 'data.0.action', default=False)
     if action == 'CREATE':
         log.debug('Recieved workspace CREATE event.')
-        return create_workspace(region, org_name, workspace_name, repo_id,
-                                repo_version)
+        return tfe_workspace_handler.create_workspace(region, org_name,
+                                                      workspace_name,
+                                                      repo_id, repo_version)
     elif action == 'DELETE':
         log.debug('Recieved workspace DELETE event.')
-        return delete_workspace(region, org_name, workspace_name)
+        return tfe_workspace_handler.delete_workspace(region, org_name,
+                                                      workspace_name)
     else:
         return 'ERROR: workspace action not specified.'
 
 
-def create_workspace(region, org_name, workspace_name, repo_id, repo_version):
-    """Create TFE workspace."""
-    configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
-                                       region)
-    conf = configFromS3.config
-    w = tfe_workspace_handler.TFEWorkspace(name=workspace_name,
-                                           vcs_repo_id=repo_id,
-                                           vcs_repo_branch=repo_version,
-                                           oauth_token_id=(
-                                             tfe_handler.get_vcs_oauth(conf)))
-    workspace = w.get_workspace()
-    api_endpoint = "/organizations/{}/workspaces".format(org_name)
-    record = tfe_handler.TFERequest(api_endpoint, workspace, conf)
-    return response_hanlder(record)
-
-
-def delete_workspace(region, org_name, workspace_name):
-    """Delete TFE workspace."""
-    configFromS3 = config.ConfigFromS3("tfsh-config", "config.ini",
-                                       region)
-    conf = configFromS3.config
-    api_endpoint = "/organizations/{}/workspaces/{}".format(org_name,
-                                                            workspace_name)
-    record = tfe_handler.TFERequest(api_endpoint, None, conf)
-    response = record.delete()
-    log.debug('Delete TFE workspace response: {}'.format(response))
-    return response
-
-
-def response_hanlder(record):
+def response_handler(record):
     """Evaulate response."""
     try:
         response = record.make_request()
@@ -79,8 +54,37 @@ def response_hanlder(record):
         else:
             return "ERROR"
 
-# variables
 
+# TFE runs
+
+def TFE_run_listener(request):
+    """Process TFE Run requests."""
+    project_name = glom(request, 'data.0.project_name', default=False).replace(
+      '/', '-')
+    repo_url = glom(request, 'data.0.repo_url', default=False)
+    branch = glom(request, 'data.0.module_version', default=False)
+    workspace_id = glom(request, 'data.0.workspace_id', default=False)
+    region = glom(request, 'data.0.region', default=False)
+    # get the configuraiton version upload url
+    upload_url = (
+      tfe_run_handler.get_upload_url(region, workspace_id))
+    log.info('configuration version response: {}'.format(upload_url))
+    # download the source module
+    git_handler.clone_repo(repo_url, project_name, branch)
+    # zip the module
+    # adding extra steps wenbhook side (clone then zip vice just download the
+    # 'pre-zipped' repo) to avoid having to work with gitlab api tokens
+    tar_path = git_handler.file_check(
+      git_handler.compress_project(project_name))
+    response = tfe_run_handler.upload_configuration_files(upload_url,
+                                                          tar_path)
+    git_handler.cleanup(project_name)
+    if not response:
+        response = '{"Status": "SUCCESS"}'
+    return response
+
+
+# TFE variables
 
 def variables_event_listener(request):
     """Process workflow request."""
@@ -101,8 +105,8 @@ def populate_tfe_vars(region, cat_vars, org_name, workspace_name, role):
       create_tfe_tf_vars(region, cat_vars, org_name, workspace_name))
     create_env_vars_response['env_vars'] = (
       create_tfe_env_vars(region, role, org_name, workspace_name))
-    result[0] = create_tf_vars_response
-    result[1] = create_env_vars_response
+    result.append(create_tf_vars_response)
+    result.append(create_env_vars_response)
     log.info('returning result: {}'.format(result))
     return result
 
@@ -148,7 +152,7 @@ def create_tfe_tf_vars(region, json_obj, org, workspace):
         return "ERROR: vars json object cannot be empty"
 
 
-# assume role
+# AWS assume role
 
 def assume_role_listener(request):
     """Process assume role request."""
@@ -195,16 +199,31 @@ def create_cred_env_vars(region, workspace, org, temp_creds):
     secret_access_key = create_secret_access_key_id_var(
       glom(temp_creds, 'aws_secret_access_key', default=False),
       workspace, org)
+    aws_session_token = create_session_token_var(
+      glom(temp_creds, 'aws_session_token', default=False),
+      workspace, org)
+    tfe_region = create_region_var(region, workspace, org)
     # check to see if the temp creds exist
     if access_key_id and secret_access_key:
         api_endpoint = "/vars"
         response = {}
+        # create the access key id tfe env var
         record = (
           tfe_handler.TFERequest(api_endpoint, access_key_id, conf))
         response['access_key_id'] = record.make_request()
+        # create the secret access key tfe env var
         record = (
           tfe_handler.TFERequest(api_endpoint, secret_access_key, conf))
         response['secret_access_key'] = record.make_request()
+        # create the region tfe env var
+        # hardcoding this for now
+        record = (
+          tfe_handler.TFERequest(api_endpoint, tfe_region, conf))
+        response['region'] = record.make_request()
+        # create the aws session token env var
+        record = (
+          tfe_handler.TFERequest(api_endpoint, aws_session_token, conf))
+        response['aws_session_token'] = record.make_request()
         log.debug('Create tfe_var response: {}'.format(response))
         return response
     else:
@@ -237,3 +256,21 @@ def create_secret_access_key_id_var(secret_access_key, workspace, org):
     else:
         log.error("Secret Access Key not found.")
         return False
+
+
+def create_region_var(region, workspace, org):
+    """Return the region env var object."""
+    return tfe_var_handler.TFEVars(key="AWS_DEFAULT_REGION",
+                                   value=region,
+                                   category='env',
+                                   org=org,
+                                   workspace=workspace).get_var()
+
+
+def create_session_token_var(aws_session_token, workspace, org):
+    """Return the session token evn var object."""
+    return tfe_var_handler.TFEVars(key="AWS_SESSION_TOKEN",
+                                   value=aws_session_token,
+                                   category='env',
+                                   org=org,
+                                   workspace=workspace).get_var()
