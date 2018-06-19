@@ -18,6 +18,12 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
 
 ### How to Use
 
+#### Deploy Terraform scripting instance
+1. Create a `terraform.tfvars` file in the scripting_host folder and add your environment variables.
+2. Deploy scripting host using `terraform apply`.
+3. Grab the ssh public key using the URL providded in the `pub_deployment_key` output, so it can be added to GitLab.
+4. Note the URL of the `gitlab_webhook` output.
+
 #### Adding Terraform Modules to ServiceNow Catalog
 *Note: Module repositories must meet the same requirements as those outlined for addition to the [Terraform Module Private Registry](https://www.terraform.io/docs/enterprise/registry/publish.html)*
 1. Create a Gitlab repo with the `terraform-<PROVIDER>-<MODULE_NAME>` name format
