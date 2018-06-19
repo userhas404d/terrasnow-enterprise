@@ -1,3 +1,5 @@
+// linked to the Role variable
+// once the user selects their aws role, populate the other variables with the associated values
 function onChange(control, oldValue, newValue, isLoading) {
    if (isLoading || newValue == '') {
       return;

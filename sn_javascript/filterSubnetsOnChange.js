@@ -1,3 +1,4 @@
+//assigned to tfv_SecrurityGroupIds to filter subnets accordingly
 function onChange(control, oldValue, newValue, isLoading) {
    if (isLoading || newValue == '') {
       return;

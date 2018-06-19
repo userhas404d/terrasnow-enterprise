@@ -1,3 +1,4 @@
+//assigned to adv_toggle variable to show/hide 'advanced'/default terraform module options
 function onChange(control, oldValue, newValue, isLoading) {
    if (isLoading || newValue == '') {
       return;
