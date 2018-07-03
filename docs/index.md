@@ -18,6 +18,7 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
     installation.md
     configuration.md
     usage.md
+    api.md
 
 ## Project Flow Diagrams
 
