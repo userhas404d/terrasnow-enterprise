@@ -66,7 +66,7 @@ log "Started flask app."
 source flask/bin/activate || \
   die "Failed to enter python venv. Exit code was $?"
 log "Entered python venv."
-pip install -r requirements.txt || \
+pip install -r requirements/install.txt || \
   die "Failed to install python requirements. Exit code was $?"
 log "Successfully installed python requirements."
 
