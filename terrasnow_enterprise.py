@@ -72,7 +72,8 @@ def hcl_to_json(vars_tf_path):
 def create_sn_cat_item(cat_item_name, cat_item_description, sn_conf):
     """Create SN Template."""
     # define a new category item.
-    my_cat = snow_cat_item.SnowCatalogItem(cat_item_name, cat_item_description)
+    my_cat = snow_cat_item.SnowCatalogItem(cat_item_name, cat_item_description,
+                                           sn_conf)
     # create the category item and return it's sys_id
     cat_sys_id = snowgetter.make_cat_item(my_cat.data(), sn_conf)
     log.info('created catalog item: {}'.format(cat_sys_id))

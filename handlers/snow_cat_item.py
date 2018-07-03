@@ -6,17 +6,16 @@ import logging
 class SnowCatalogItem(object):
     """ServiceNow Category Item."""
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, conf):
         """Initialize."""
         self.name = name
         # terraform catalog sys_id
-        self.catalogs = "e0ab3e2e84341300777f3b0167a0485f"
+        self.catalog = conf.get("SERVICENOW", "TF_CATALOG")
         # terraform catalog's watchmaker category
-        self.category = "062ef22284741300777f3b0167a0480d"
+        self.category = conf.get("SERVICENOW", "CATEGORY")
         self.description = description
         # terraform deployment workflow
-        self.workflow = "29af073c61525300777fedec18548074"
-        # global workflow: "8c804bc78d051300777fcdb2187743ec"
+        self.workflow = conf.get("SERVICENOW", "TFE_WORKFLOW")
         self.isactive = "true"
 
     def data(self):
@@ -24,7 +23,7 @@ class SnowCatalogItem(object):
         logging.info('')
         return {"name": self.name,
                 "category": self.category,
-                "sc_catalogs": self.catalogs,
+                "sc_catalogs": self.catalog,
                 "short_description": self.description,
                 "workflow": self.workflow,
                 "active": self.isactive

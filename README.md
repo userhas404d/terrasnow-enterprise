@@ -1,6 +1,6 @@
 # TerraSnow Enterprise
 
-Enables the deployment of AWS resources from ServiceNow
+Enables the deployment of terraform defined AWS resources from ServiceNow via Terraform Enterprise
 
 ## Overview
 

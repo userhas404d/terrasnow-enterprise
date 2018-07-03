@@ -12,14 +12,63 @@
 - Pre-configured [Gitlab](https://about.gitlab.com/) instance
 - Pre-configured ServiceNow Instance
 - A MidServer deployed in your AWS account that has been associated with your target ServiceNow instance
+- Web console access to Terraform Enterprise
 
-NOTE: all of these services can be used with TerraSnow Enterprise in their SaaS form(s) with the exception of the Mid Server.
+NOTE: all of these services can be used with TerraSnow Enterprise in their SaaS form(s) with the exception of the ServiceNow MidServer.
 
 ## Setup
 
 Start by first cloning this repo to your local machine.
 
-NOTE: Configuration management is pretty messy right now in terms of `sys_id` associations in regards to the catalog, category, and workflow. A future release will aim to simplify this.
+NOTE: Configuration management aims to be as consolidated as possible through the use of a config file. However, there are some caveats so please read through this documentation carefully.
+
+### Configuration File
+
+Your Terraform Enterprise and ServiceNow environment specific details are stored within a configuration file.
+These settings are pulled from this configuration automatically and as needed.
+
+This file must be stored in an S3 bucket that is read-accessible by the TerraSnow instance. Additionally it is recommended that this file be stored in an encrypted S3 bucket due to its sensitive nature.
+
+The expected file structure is as follows:
+
+File Name: `config.ini`
+
+Contents:
+```
+[SERVICENOW]
+INSTANCE_NAME=
+SN_API_USER_NAME=
+SN_API_USER_PWD=
+TF_CATALOG=
+CATEGORY=
+TFE_WORKFLOW=
+
+[TERRAFORM_ENTERPRISE]
+INSTANCE_NAME=
+ATLAS_TOKEN=
+```
+
+#### ServiceNow
+
+Overview of the `config.ini` settings for ServiceNow specific information
+
+| Value              | Description                                                     |
+|--------------------|-----------------------------------------------------------------|
+| INSTANCE_NAME      | url of your ServiceNow instance ex: https://mysninstance.com    |
+| SN_API_USER_NAME   | user name of the user performing API actions against ServiceNow |
+| SN_API_USER_PWD    | password of the user performing API actions against ServiceNow  |
+| TF_CATALOG         | sys_id of the target Catalog                                    |
+| CATEGORY           | sys_id of the target Category                                   |
+| TFE_WORKFLOW       | sys_id of the TF catalog item order workflow                    |
+
+#### Terraform enterprise
+
+Overview of the `config.ini` settings for Terraform Enterprise specific information
+
+| Value              | Description                                                  |
+|--------------------|--------------------------------------------------------------|
+| INSTANCE_NAME      | url of your TFE instance ex: https://app.terraform.io        |
+| ATLAS_TOKEN        | User API access token to create and populate TFE workspaces  |
 
 ### ServiceNow
 
@@ -51,9 +100,8 @@ Deploy a mid server into your AWS environment.
 
 1. Create a new catalog within ServiceNow by using the instructions in the following [link](https://docs.servicenow.com/bundle/helsinki-it-service-management/page/product/service-catalog-management/task/t_DefineCatalogDetails.html) or with the ServiceNow shortcut `sc_catalog.list`
 2. Create a category for your catalog
-3. Copy the `sys_id` of the catalog (Retrievable from the sys_id option of the right click context menu in the catalog list view) and update the value of `self.catalogs` in `project_root\handlers\snow_cat_item.py`
-4.  Copy the `sys_id` of your category (retrievable from the sys_id option of the right click context menu in the catalog Categories tab) and update the value of `self.category` in `project_root\handlers\snow_cat_item.py`
-5. save your changes to `snow_cat_item.py`
+3. Copy the `sys_id` of the catalog (Retrievable from the sys_id option of the right click context menu in the catalog list view) and update the value of `TF_CATALOG` in your `config.ini`
+4.  Copy the `sys_id` of your category (retrievable from the sys_id option of the right click context menu in the catalog Categories tab) and update the value of `CATEGORY` in your `config.ini`
 
 #### Order Workflow
 
@@ -71,14 +119,25 @@ NOTE: It is useful when troubleshooting to capture Run Script activity content v
 
 For the three workflow activities listed here that require variable replacement ensure you replace `YOUR_WEBHOOK_URL` and `YOUR_MIDSEVER_DNS_NAME` with your environment specific details.
 
-3. Once your workflow has been created copy its `sys_id` and update the value of `self.workflow` in `project_root\handlers\snow_cat_item.py`
+3. Once your workflow has been created copy its `sys_id` and update the value of `self.workflow` in your `config.ini`
 
+
+### Terraform Enterprise
+
+NOTE: Testing and development was done against Terraform Enterprise using a single Organization.
+
+#### User API Token
+
+1. Generate an API token for a Terraform Enterprise user: `TFE console > User Settings > Tokens`
+2. Update the value of `ATLAS_TOKEN` in your `config.ini`
 
 ### TerraSnow Instance
 
 This instance will perform all the 'heavy lifting' when it comes to building the catalog item(s) within ServiceNow as well as the Workspace creation within Terraform Enterprise when the catalog item is ordered.
 
 #### Deployment
+
+NOTE: Successful deployment requires that your environment specific configuration file has been populated with the correct information and uploaded to S3.
 
 1. Navigate to the scripting_host folder and create a `terraform.tfvars` file specific to your target AWS env
 2. Configure your local env to target the correct AWS account either via the [AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html) or by modifying the provider block in `main.tf`
