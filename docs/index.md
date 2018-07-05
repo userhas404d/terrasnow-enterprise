@@ -19,6 +19,7 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
     configuration.md
     usage.md
     api.md
+    sn_catitem.md
 
 ## Project Flow Diagrams
 
@@ -38,7 +39,7 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
 
 ![alt text][sn_cat_item_creation_detailed]
 
-[sn_cat_item_creation_detailed]: images/ServiceNow_Catalog_item_creation.svg "ServiceNow Catalog Item creation - detailed diagram"
+[sn_cat_item_creation_detailed]: images/ServiceNow_Catalog_item_creation_detailed_diagram.svg "ServiceNow Catalog Item creation - detailed diagram"
 
 ## Supported Versions of ServiceNow
 

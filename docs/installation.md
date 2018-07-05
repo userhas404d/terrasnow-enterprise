@@ -76,7 +76,7 @@ NOTE: These procedures outline installing this project without an associated Ser
 
 #### MID Server
 
-Deploy a mid server into your AWS environment.
+Deploy a mid server into your AWS environment. This mid server will be making the api calls against TerraSnow in order to deploy resources against terraform enterprise. 
 
 #### API User
 

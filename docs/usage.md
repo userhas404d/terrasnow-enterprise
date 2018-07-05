@@ -10,6 +10,8 @@ Note:
 
 - This project was successfully tested against the watchmaker [lx-instance](https://github.com/plus3it/terraform-aws-watchmaker/tree/master/modules/lx-instance) module.
 
+- Your source terraform module has a separate `main.tf` and `variables.tf` file. Variables not defined in `variables.tf` will not be included in the resulting ServiceNow catalog item.
+
 ## ServiceNow TF catalog item creation
 
 Note: This procedure requires that the TerraSnow installation steps have been completed successfully

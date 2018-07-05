@@ -105,7 +105,6 @@ This endpoint will query the target workspace for the configuration upload url, 
 **Returns**
 
 If successful:
-
 ```
 {
   "Status": "SUCCESS"
