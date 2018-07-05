@@ -139,12 +139,12 @@ Listens for TFE workspace events, creates an empty TFE workspace and backs it wi
 
 **Parameters**
 
-- region *(string)* -- **[REQUIRED]** -- target AWS region in which your terraform resources will be deployed
-- org_name *(string)* -- **[REQUIRED]** -- your TFE organization name
-- workspace_name *(string)* -- **[REQUIRED]** -- your TFE workspace name
-- repo_id *(string)* -- **[REQUIRED]** -- the id of your terraform module's repo
-- repo_version *(string)* -- **[REQUIRED]** -- the target version tag of your module's repo
-- action *(string)* -- **[REQUIRED]** -- the desired action on your target workspace, accepts CREATE or DELETE
+- region *(string)* -- **[REQUIRED]** -- target AWS region in which the terraform resources will be deployed
+- org_name *(string)* -- **[REQUIRED]** -- the target TFE organization name
+- workspace_name *(string)* -- **[REQUIRED]** -- the target TFE workspace name
+- repo_id *(string)* -- **[REQUIRED]** -- the id of the source terraform module's repo
+- repo_version *(string)* -- **[REQUIRED]** -- the target version tag of the terraform module's repo
+- action *(string)* -- **[REQUIRED]** -- the desired action on the target workspace, accepts CREATE or DELETE
 
 **Returns**
 
