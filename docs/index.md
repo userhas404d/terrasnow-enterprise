@@ -27,19 +27,19 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
 
 ![alt text][module_creation_workflow]
 
-[module_creation_workflow]: images/Terrasnow_Enterprise_Module_Creation_Workflow_diagram.svg "Terrasnow Enterprise module creation workflow diagram"
+[module_creation_workflow]: images/Terrasnow_Enterprise_Module_Creation_Workflow_diagram.png "Terrasnow Enterprise module creation workflow diagram"
 
 ### ServiceNow Catalog Item Order
 
 ![alt text][sn_cat_item_creation]
 
-[sn_cat_item_creation]: images/ServiceNow_Catalog_item_order_diagram.svg "ServiceNow Catalog Item creation diagram"
+[sn_cat_item_creation]: images/ServiceNow_Catalog_item_order_diagram.png "ServiceNow Catalog Item creation diagram"
 
 ### ServiceNow Catalog Item Creation - Detailed
 
 ![alt text][sn_cat_item_creation_detailed]
 
-[sn_cat_item_creation_detailed]: images/ServiceNow_Catalog_item_creation_detailed_diagram.svg "ServiceNow Catalog Item creation - detailed diagram"
+[sn_cat_item_creation_detailed]: images/ServiceNow_Catalog_item_creation_detailed_diagram.png "ServiceNow Catalog Item creation - detailed diagram"
 
 ## Supported Versions of ServiceNow
 

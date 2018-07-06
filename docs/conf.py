@@ -38,8 +38,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.imgconverter',
+    'sphinx.ext.viewcode'
 ]
 
 intersphinx_mapping = {
