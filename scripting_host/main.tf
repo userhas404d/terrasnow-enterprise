@@ -107,25 +107,25 @@ output "_private_ip" {
 
 output "aws_assume_role_webhook" {
   description = "AWS assume role webhook"
-  value = "https://${local.domain_name}/aws-assume-role-webhook"
+  value       = "https://${local.domain_name}/aws-assume-role-webhook"
 }
 
 output "gitlab_webhook" {
   description = "Gitlab webhook"
-  value = "https://${local.domain_name}/gitlab-webhook"
+  value       = "https://${local.domain_name}/gitlab-webhook"
 }
 
 output "pub_deployment_key" {
   description = "Public key"
-  value = "https://${local.domain_name}/pub-key/key.txt"
+  value       = "https://${local.domain_name}/pub-key/key.txt"
 }
 
 output "tfe_workflow_webhook" {
   description = "Terraform Enterprise Workflow webhook"
-  value = "https://${local.domain_name}/workflow-webhook"
+  value       = "https://${local.domain_name}/workflow-webhook"
 }
 
 output "sn_variables_webhook" {
   description = "ServiceNow variables webhook"
-  value = "https://${local.domain_name}/variables-webhook"
+  value       = "https://${local.domain_name}/variables-webhook"
 }
