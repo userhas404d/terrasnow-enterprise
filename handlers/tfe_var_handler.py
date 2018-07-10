@@ -5,7 +5,7 @@
 class TFEVars(object):
     """Terraform Enterprise Variables."""
 
-    def __init__(self, key, value, org, workspace, category="terraform",
+    def __init__(self, key, value, org, workspace_id, category="terraform",
                  is_hcl="false", is_senative="false"):
         """Initialize."""
         self.key = key
@@ -14,7 +14,7 @@ class TFEVars(object):
         self.is_hcl = is_hcl
         self.is_senative = is_senative
         self.org = org
-        self.workspace = workspace
+        self.workspace_id = workspace_id
 
     def get_var(self):
         """Return TFE var data block."""
@@ -27,14 +27,14 @@ class TFEVars(object):
                       "category": self.category,
                       "hcl": self.is_hcl,
                       "sensitive": self.is_senative
-                    }
-                  },
-                 "filter": {
-                    "organization": {
-                      "name": self.org
                     },
-                    "workspace": {
-                      "name": self.workspace
-                    }
-                  }
+                    "relationships": {
+                      "workspace": {
+                        "data": {
+                          "id": self.workspace_id,
+                          "type": "workspaces"
+                            }
+                          }
+                        }
+                   }
                 }

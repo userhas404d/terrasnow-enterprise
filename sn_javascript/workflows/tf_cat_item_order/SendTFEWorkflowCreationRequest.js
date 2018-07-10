@@ -15,5 +15,15 @@ var request  = new sn_ws.RESTMessageV2();
 
 //get workspace id
 var json_obj = JSON.parse(response.getBody());
-workflow.scratchpad.tfeRunData['data'][0]["workspace_id"] = json_obj['data']['id'];
-workflow.scratchpad.tfeRunData = JSON.stringify(workflow.scratchpad.tfeRunData);
+workflow.scratchpad.workflow_req_response = JSON.stringify(json_obj);
+var workflow_id = "";
+workflow_id = json_obj['data']['id'];
+workflow.scratchpad.test_variable = workflow_id;
+
+var variables_json = JSON.parse(workflow.scratchpad.variablesData);
+variables_json['data'][0]["workspace_id"] = workflow_id;
+workflow.scratchpad.variablesData = JSON.stringify(variables_json);
+
+var tfeRunData_json = JSON.parse(workflow.scratchpad.tfeRunData);
+tfeRunData_json['data'][0]["workspace_id"] = workflow_id;
+workflow.scratchpad.tfeRunData = JSON.stringify(tfeRunData_json);

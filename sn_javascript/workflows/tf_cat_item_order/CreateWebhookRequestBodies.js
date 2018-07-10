@@ -1,5 +1,3 @@
-//Create webhook request bodies
-
 workflow.scratchpad.sys_id = current.sys_id;
 
 workspaceBody = {};
@@ -62,7 +60,7 @@ workspaceData["data"] = workspaceDataList;
 
 
 //define the terraform variables - targets the tfe terraform variables
-variablesBody["workspace_name"] = String(item.sys_id);
+variablesBody["workspace_id"] = "";
 variablesBody["cat_vars"] = [];
 variablesBody["cat_vars"][0] = catItemVars;
 var variablesData = {};
@@ -83,5 +81,5 @@ tfeRunData["data"] = tfeRunDataList;
 workflow.scratchpad.json_obj = JSON.stringify(catItemVars);
 workflow.scratchpad.variablesData = JSON.stringify(variablesData);
 workflow.scratchpad.workspaceData = JSON.stringify(workspaceData);
-workflow.scratchpad.tfeRunData = tfeRunData;
+workflow.scratchpad.tfeRunData = JSON.stringify(tfeRunData);
 //workflow.scratchpad.output_test = current.request;

@@ -78,4 +78,11 @@ def get_vcs_oauth(conf):
     record = TFERequest('/organizations/{}/oauth-tokens'.format(org), None,
                         conf)
     response = record.make_request()
-    return glom(response, 'data.0.id', default=False)
+    response = glom(response, 'data.0.id', default=False)
+    if response:
+        return response
+    else:
+        log.error(
+          'VCS oauth id not found in reponse from TFE instance. Confirm' +
+          'that a VCS has been configured for the TFE organization.')
+        return False
