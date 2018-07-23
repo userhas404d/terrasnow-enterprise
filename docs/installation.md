@@ -1,5 +1,7 @@
 # Installation
 
+The following instructions outline how to install TerraSnow Enterprise using the included terraform deployable host that is maintained in this project's repo under `/scripting_host`.
+
 ## Assumptions
 
 - A working familiarity with terraform module development and terraform based resource deployment within AWS
@@ -14,7 +16,8 @@
 - A MidServer deployed in the target AWS account that has been associated with the target ServiceNow instance
 - Web console access to Terraform Enterprise
 
-NOTE: all of these services can be used with TerraSnow Enterprise in their SaaS form(s) with the exception of the ServiceNow MidServer.
+NOTE: All of these services can be used with TerraSnow Enterprise in their SaaS form(s) with the exception of the ServiceNow MidServer.
+
 
 ## Setup
 

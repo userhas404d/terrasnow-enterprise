@@ -15,7 +15,7 @@ variable "target_r53_zone" {
 }
 
 variable "pub_access_sg" {
-  descripiton = "Public access security group."
+  description = "Public access security group."
 }
 
 variable "priv_access_vpc_id" {

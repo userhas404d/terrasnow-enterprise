@@ -79,8 +79,7 @@ resource "aws_instance" "scripting_host" {
 }
 
 module "dns" {
-  source = "dns/"
-
+  source          = "dns/"
   alias_name      = "${var.alias_name}"
   target_r53_zone = "${local.target_r53_zone}"
   alb_dns_name    = "${module.alb.dns_name}"

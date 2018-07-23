@@ -18,6 +18,7 @@ This project contains a terraform template to deploy a Ngnix reverse proxied, Fl
     installation.md
     configuration.md
     usage.md
+    scripting_host.md
     api.md
     sn_catitem.md
 
