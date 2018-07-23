@@ -21,7 +21,7 @@ NOTE: All of these services can be used with TerraSnow Enterprise in their SaaS 
 
 ## Setup
 
-Start by first cloning this repo.
+Start by first cloning the [TerraSnow Enterprise](https://github.com/userhas404d/terrasnow-enterprise/) repo.
 
 NOTE: Configuration management aims to be as consolidated as possible through the use of a config file. However, there are some caveats so please read through this documentation carefully.
 
