@@ -85,7 +85,8 @@ def create_cat_item_vars(json_obj, cat_sys_id, repo_namespace, module_version,
     """Create catalog item vars."""
     os_type = ""
     sn_vars = sn_var_handler.SnowVars(json_obj, cat_sys_id, repo_namespace,
-                                      module_version, os_type, repo_url)
+                                      module_version, os_type, repo_url,
+                                      sn_conf)
     var_list = sn_vars.get_vars()
 
     # push category item variables to snow

@@ -5,8 +5,7 @@ class SnowVars(object):
     """Terraform to ServiceNow cariable converter."""
 
     def __init__(self, json_obj, cat_item_id, repo_namespace, module_version,
-                 os_type, repo_url, aws_region="us-east-1",
-                 org_name="plus3it-poc02"):
+                 os_type, repo_url, conf, aws_region="us-east-1"):
         """Initialize."""
         self.cat_item_id = cat_item_id
         self.cat_item_list = []
@@ -16,7 +15,7 @@ class SnowVars(object):
         self.repo_namespace = repo_namespace
         self.module_version = module_version
         self.aws_region = aws_region
-        self.org_name = org_name
+        self.org_name = conf.get("TERRAFORM_ENTERPRISE", "ORGANIZATION")
         self.repo_url = repo_url
 
     def create_var(self, var_name, obj_type, q_txt, t_tip, h_txt,
