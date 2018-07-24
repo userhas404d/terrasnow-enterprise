@@ -52,11 +52,16 @@ class SnowVars(object):
                     self.counter = self.counter + 10
                     order_val = self.counter
                     def_val = ""
-                desc = var_list[key][0]['description']
+                desc = self.create_description(var_list[key][0])
                 self.create_var(var_name='tfv_' + var_name, obj_type=obj_type,
                                 q_txt=var_name, t_tip=desc, def_val=def_val,
                                 h_txt=desc, order_val=order_val,
                                 m_toggle=mandatory_toggle)
+
+    def create_description(self, variable):
+        """Create the variable description."""
+        return variable['description'] + " Terraform variable type: "
+        + variable['type']
 
     def create_adv_toggle(self):
         """Create the advanced mode toggle."""

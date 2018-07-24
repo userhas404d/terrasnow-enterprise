@@ -1,6 +1,7 @@
 """Performs actions based on ServiceNow workflow inputs."""
 
 import logging as log
+import re
 import urllib
 
 import handlers.aws_assume_role as aws_assume_role
@@ -141,9 +142,24 @@ def create_tfe_tf_vars(region, json_obj, org, workspace_id):
     response = {}
     if raw_vars:
         for var in raw_vars:
-            new_var = tfe_var_handler.TFEVars(var, raw_vars[var], org=org,
-                                              workspace_id=workspace_id
-                                              ).get_var()
+            var_value = raw_vars[var]
+            # fix map values
+            if "[{" in var_value:
+                var_value = re.sub('\[|\]', '', var_value)
+                new_var = tfe_var_handler.TFEVars(var, var_value, org=org,
+                                                  workspace_id=workspace_id,
+                                                  is_hcl="true"
+                                                  ).get_var()
+            # check if the variable is a map or list
+            elif "{" in var_value or "[" in var_value:
+                new_var = tfe_var_handler.TFEVars(var, var_value, org=org,
+                                                  workspace_id=workspace_id,
+                                                  is_hcl="true"
+                                                  ).get_var()
+            else:
+                new_var = tfe_var_handler.TFEVars(var, var_value, org=org,
+                                                  workspace_id=workspace_id
+                                                  ).get_var()
             print("var payload: {}".format(new_var))
             api_endpoint = "/vars"
             record = tfe_handler.TFERequest(api_endpoint, new_var, conf)
