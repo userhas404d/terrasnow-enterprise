@@ -8,6 +8,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
+import aws_account_info_listener
 import sn_workflow_listener
 import terrasnow_enterprise
 from flask import abort, Flask, render_template, request
@@ -95,6 +96,21 @@ def workflow_target():
         return json.dumps(
                   sn_workflow_listener.workspace_event_listener(
                      json.loads(data))), 200
+
+
+# Returns JSON object of AWS account information
+@application.route('/aws-account-info', methods=['POST'])
+def aws_account_info():
+    """Return aws account info."""
+    if request.method == 'POST':
+        data = request.get_data().decode("utf-8", "ignore")
+        application.logger.error(data)
+        response = json.dumps(aws_account_info_listener.event_listener(
+                          json.loads(data)))
+        if "ERROR" in response:
+            return response, 400
+        else:
+            return response, 200
 
 
 if __name__ == '__main__':
