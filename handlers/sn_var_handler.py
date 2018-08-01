@@ -87,7 +87,7 @@ class SnowVars(object):
                         def_val="",
                         h_txt="AWS role(s)",
                         order_val=1,
-                        m_toggle="false")
+                        m_toggle="true")
 
     def create_os_type_var(self):
         """Create the os type variable."""
