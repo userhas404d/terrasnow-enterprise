@@ -93,9 +93,12 @@ def workflow_target():
     if request.method == 'POST':
         data = request.get_data().decode("utf-8", "ignore")
         application.logger.error(data)
-        return json.dumps(
-                  sn_workflow_listener.workspace_event_listener(
-                     json.loads(data))), 200
+        response = json.dumps(sn_workflow_listener.workspace_event_listener(
+                              json.loads(data)))
+        if "ERROR" in response:
+            return response, 400
+        else:
+            return response, 200
 
 
 # Returns JSON object of AWS account information

@@ -54,7 +54,7 @@ def response_handler(record):
         return response
     except urllib.error.HTTPError as e:
         if e.code == 422:
-            return "ERROR: Worspace already exists"
+            return "ERROR: Workspace already exists"
         else:
             return "ERROR"
 

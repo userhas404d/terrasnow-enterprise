@@ -96,7 +96,4 @@ def response_handler(record):
         log.debug('Create TFE workspace response: {}'.format(response))
         return response
     except urllib.error.HTTPError as e:
-        if e.code == 422:
-            return "ERROR: Worspace already exists"
-        else:
-            return "ERROR"
+        return "ERROR: TFE workspace error occured: {}".format(e)
