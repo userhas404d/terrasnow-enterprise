@@ -49,12 +49,16 @@ class TFERequest(object):
             log.debug('request data: {}'.format(self.data))
             log.debug('request headers: {}'.format(self.headers))
             self.response = urllib.request.urlopen(req)
-            return self.eval_response()
+            response = self.eval_response()
+            log.debug("recieved response: {}".format(response))
+            return response
         else:
             log.info('Making GET request against url: {}'.format(self.url))
             req = urllib.request.Request(self.url, self.data, self.headers)
             self.response = urllib.request.urlopen(req)
-            return self.eval_response()
+            response = self.eval_response()
+            log.debug("recieved response: {}".format(response))
+            return response
 
     def delete(self):
         """Make delete request."""
