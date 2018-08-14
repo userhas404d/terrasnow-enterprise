@@ -200,6 +200,7 @@ def get_workflow_stage(workflow_sys_id, workflow_name, stage_name, sn_conf):
 def make_cat_item(cat_item_data, sn_conf):
     """Create a category item."""
     logging.info('submitting catalog item creation request.')
+    logging.info('cat_item data: {}'.format(cat_item_data))
     record = snow_record('table/sc_cat_item', "", cat_item_data, conf=sn_conf)
     logging.info('Defined snowgetter parameters.')
     response = record.make_POST_request()
@@ -209,7 +210,7 @@ def make_cat_item(cat_item_data, sn_conf):
 
 def make_cat_var(var_item_data, sn_conf):
     """Create a category item variable."""
-    logging.info('submitting catalog item creation request.')
+    logging.info('submitting catalog variable creation request.')
     record = snow_record('table/item_option_new', "", var_item_data,
                          conf=sn_conf)
     logging.info('Defined snowgetter parameters.')
