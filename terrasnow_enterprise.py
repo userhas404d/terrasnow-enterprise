@@ -117,18 +117,26 @@ def compare_versions(sn_template_version, gitlab_template_version):
     """Compare SN and Gitlab template version numbers."""
     log.debug('sn_template_version: {}'.format(sn_template_version))
     log.debug('gitlab_template_version: {}'.format(gitlab_template_version))
-    try:
-        if Version(sn_template_version) < Version(gitlab_template_version):
-            log.debug('sn_template_version is less than '
-                      + 'gitlab_template_version')
-            return True
-        else:
-            log.debug('sn_template_version is greater than '
-                      + 'gitlab_template_version')
-            return False
-    except packaging.version.InvalidVersion as e:
-        log.error("Invlaid version format provided:{}".format(e))
+    if sn_template_version < gitlab_template_version:
+        log.debug('sn_template_version is less than '
+                  + 'gitlab_template_version')
+        return True
+    else:
+        log.debug('sn_template_version is greater than '
+                  + 'gitlab_template_version')
+        return False
         # send email notification here
+
+
+def get_template_version(repo_version):
+    """Validate repo/template version is in correct format."""
+    if repo_version:
+        try:
+            return Version(repo_version)
+        except packaging.version.InvalidVersion as e:
+            log.error("Invlaid version format provided:{}".format(e))
+    else:
+        return 0
 
 
 def update_sn_template(repo_url, project_name, repo_namespace, module_version,
@@ -159,6 +167,8 @@ def process_response(response):
     sn_template_version = get_sn_template_version(cat_item_sys_id, conf)
 
     if cat_item_sys_id:
+        sn_template_version = get_template_version(sn_template_version)
+        gitlab_template_version = get_template_version(gitlab_template_version)
         if compare_versions(sn_template_version, gitlab_template_version):
             log.info("ServiceNow terraform module update triggered")
             update_sn_template(repo_url, project_name, repo_namespace,
