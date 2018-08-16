@@ -50,7 +50,7 @@ class SnowClientScript(object):
                                    'createDisplayToggleOnChange.js'))
 
     def create_hide_generic_vars(self):
-        """Create the dispaly toggle client script."""
+        """Create hide generic variables client script."""
         self.create_client_script(name="hide generic vars",
                                   script_type="onLoad",
                                   cat_var="",
@@ -58,12 +58,12 @@ class SnowClientScript(object):
                                     'hideGenericVariablesOnLoad.js'))
 
     def create_population_dropdown(self):
-        """Create the dispaly toggle client script."""
-        self.create_client_script(name="populate dropdowns",
-                                  script_type="onLoad",
-                                  cat_var="",
+        """Create the dropdown population client script."""
+        self.create_client_script(name="populate dropdowns on role change",
+                                  script_type="onChange",
+                                  cat_var="Roles",
                                   script=self.getJavascriptText(
-                                    'populateDropdownsOnLoad.js'))
+                                    'populateDropDownsOnRoleChange.js'))
 
     def create_subnet_filter(self):
         """Create the dispaly toggle client script."""
@@ -73,28 +73,10 @@ class SnowClientScript(object):
                                   script=self.getJavascriptText(
                                     'filterSubnetsOnChange.js'))
 
-    def create_role_populator(self):
-        """Create the role population client script."""
-        self.create_client_script(name="populateAWSRoleInfo",
-                                  script_type="onLoad",
-                                  cat_var="",
-                                  script=self.getJavascriptText(
-                                    'populateAWSRoleInfoOnLoad.js'))
-
-    def create_enable_after_populate_roles(self):
-        """Create the enable after populate roles client script."""
-        self.create_client_script(name="enableAfterPopulateRoles",
-                                  script_type="onChange",
-                                  cat_var="Role",
-                                  script=self.getJavascriptText(
-                                    'enableAfterPopulateRolesOnChange.js'))
-
     def get_scripts(self):
         """Preform correct order of operations and return variables."""
         self.create_display_toggle()
         self.create_hide_generic_vars()
         self.create_population_dropdown()
         self.create_subnet_filter()
-        self.create_role_populator()
-        self.create_enable_after_populate_roles()
         return self.client_script_list

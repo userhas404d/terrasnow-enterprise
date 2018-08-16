@@ -19,7 +19,7 @@ class SnowVars(object):
         self.repo_url = repo_url
 
     def create_var(self, var_name, obj_type, q_txt, t_tip, h_txt,
-                   def_val, order_val, m_toggle):
+                   def_val, order_val, m_toggle, reference=None):
         """Create catalog item variable."""
         self.cat_item_list.append(
              {
@@ -31,7 +31,8 @@ class SnowVars(object):
                "default_value": def_val,
                "help_text": h_txt,
                "order": order_val,
-               "mandatory": m_toggle
+               "mandatory": m_toggle,
+               "reference": reference
                })
 
     def parse_tf_vars(self):
@@ -81,13 +82,14 @@ class SnowVars(object):
         """Create the role variable."""
         # different from gen_aws_role - defines values of 'child' vars
         self.create_var(var_name='Roles',
-                        obj_type="Select Box",
+                        obj_type="8",  # reference field
                         q_txt="AWS role(s)",
                         t_tip="AWS role(s)",
                         def_val="",
                         h_txt="AWS role(s)",
                         order_val=1,
-                        m_toggle="true")
+                        m_toggle="true",
+                        reference="x_terraform_snow_cloud_account_details")
 
     def create_os_type_var(self):
         """Create the os type variable."""

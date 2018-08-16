@@ -24,9 +24,10 @@ class SnowCatalogItem(object):
     def data(self):
         """Create category item data payload."""
         logging.info('')
-        return {"name": self.name,
-                "category": self.category,
+        return {
                 "sys_package": self.sys_package,
+                "name": self.name,
+                "category": self.category,
                 "sc_catalogs": self.catalog,
                 "short_description": self.description,
                 "workflow": self.workflow,
