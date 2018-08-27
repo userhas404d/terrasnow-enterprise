@@ -2,19 +2,19 @@
 
 ## Requirements
 
-The Installation procedures have been completed successfully.
+- The Installation procedures have been completed successfully.
 
-Note:
+- A working Gitlab instance
 
-- Module repositories must meet the same requirements as those outlined for addition to the [Terraform Module Private Registry](https://www.terraform.io/docs/enterprise/registry/publish.html)
-
-- This project was successfully tested against the watchmaker [lx-instance](https://github.com/plus3it/terraform-aws-watchmaker/tree/master/modules/lx-instance) module.
-
-- The source terraform module has a separate `main.tf` and `variables.tf` file. Variables not defined in `variables.tf` will not be included in the resulting ServiceNow catalog item.
+>**Notes:**
+>
+>- Module repositories must meet the same requirements as those outlined for addition to the [Terraform Module Private Registry](https://www.terraform.io/docs/enterprise/registry/publish.html)
+>
+> - This project was successfully tested against the watchmaker [lx-instance](https://github.com/plus3it/terraform-aws-watchmaker/tree/master/modules/lx-instance) module.
+>
+> - The source terraform module has a separate `main.tf` and `variables.tf` file. Variables not defined in `variables.tf` will not be included in the resulting ServiceNow catalog item.
 
 ## ServiceNow TF catalog item creation
-
-Note: This procedure requires that the TerraSnow installation steps have been completed successfully
 
 1. Create a Gitlab repo with the `terraform-<PROVIDER>-<MODULE_NAME>` name format
 2. Add the TerraSnow instance public key to the repo (available at the `https://YOUR_TERRASNOW_INSTANCE/pub-key/key.txt`) and grant the TerraSnow instance read access to the repo.
@@ -27,10 +27,12 @@ Note: This procedure requires that the TerraSnow installation steps have been co
 `git tag -a v0.0.1 -m 'test' && git push origin --tags`
 6. The Terraform resource catalog item should now be available for order via the target ServiceNow instance.
 
-Note: There is an issue with the ServiceNow catalog item OnLoad client scripts associating with their target variables (see the comments in the embedded client scripts for more details). Unfortunately, this is a manual step for now.
+> **Note:** There is an issue with the ServiceNow catalog item OnLoad client scripts associating with their target variables (see the comments in the embedded client scripts for more details). Unfortunately, this is a manual step for now.
 
 ## Deploying TF resources from ServiceNow
 
-Navigate to the ServiceNow Catalog that was created in the installation steps and complete the catalog item request. On order, the workflow should be triggered and a workspace will be created on the target Terraform Enterprise instance.
+Navigate to the TerraForm ServiceNow Catalog via either the Terraform service portal `https://YOUR_SNOW_INSTANCE/tfcm` or via the application studio. 
+
+On order, the workflow should be triggered and a workspace will be created on the target Terraform Enterprise instance.
 
 Current workspace naming convention is the ServiceNow REQ sys_id but this may be updated in a future release
