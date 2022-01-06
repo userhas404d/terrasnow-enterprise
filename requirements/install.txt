@@ -1,5 +1,5 @@
 boto3==1.5.30
-celery==4.2.0
+celery==5.2.2
 Flask==1.0.2
 glom==18.1.1
 gunicorn==19.8.1
